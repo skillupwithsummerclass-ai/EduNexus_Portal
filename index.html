@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EduNexus — Smart Campus Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  window.EMAILJS_CONFIG = {
+    PUBLIC_KEY:           "AyOb3uiAryEwnrXXu",
+    SERVICE_ID:           "service_3se98kg",
+    ANNOUNCEMENT_TEMPLATE:"template_p8c17io",
+    PASSWORD_TEMPLATE:    "template_d91i05q"
+  };
+  
+  // Initialize EmailJS when the script loads
+  function initEmailJS() {
+    if (window.emailjs && window.EMAILJS_CONFIG.PUBLIC_KEY) {
+      try {
+        emailjs.init({ publicKey: window.EMAILJS_CONFIG.PUBLIC_KEY });
+        console.log('EmailJS initialized successfully');
+      } catch(e) {
+        console.error('EmailJS initialization failed:', e);
+      }
+    } else {
+      console.warn('EmailJS not loaded or missing public key');
+    }
+  }
+  
+  // Try to initialize immediately, or wait for load
+  if (window.emailjs) {
+    initEmailJS();
+  } else {
+    window.addEventListener('load', initEmailJS);
+  }
+</script>
+<style>
+  :root{
+    --bg:#0a0e1a; --bg2:#0f1525; --surface:#111827; --card:#161d2e; --card2:#1a2238;
+    --border:#1f2d45; --border2:#2a3a5a;
+    --accent:#3b82f6; --accent2:#06b6d4; --accent3:#8b5cf6;
+    --green:#10b981; --red:#ef4444; --amber:#f59e0b;
+    --text:#e2e8f0; --muted:#64748b; --soft:#94a3b8;
+    --grad-admin:linear-gradient(135deg,#8b5cf6 0%,#3b82f6 100%);
+    --grad-student:linear-gradient(135deg,#06b6d4 0%,#10b981 100%);
+    --grad-hero:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 50%,#06b6d4 100%);
+    --shadow-glow:0 0 40px rgba(59,130,246,.15);
+    --shadow-card:0 8px 24px rgba(0,0,0,.35);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+  body{background:radial-gradient(circle at 20% 0%,rgba(139,92,246,.12),transparent 50%),radial-gradient(circle at 80% 100%,rgba(6,182,212,.10),transparent 50%),var(--bg)}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-track{background:var(--bg2)}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:8px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+  /* Pages */
+  .page{display:none;min-height:100vh;animation:fadeIn .35s ease}
+  .page.active{display:flex;flex-direction:column}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes glow{0%,100%{box-shadow:0 0 20px rgba(59,130,246,.3)}50%{box-shadow:0 0 40px rgba(139,92,246,.5)}}
+
+  /* ============ LANDING ============ */
+  #landing{align-items:center;justify-content:center;padding:24px;text-align:center}
+  .hero-wrap{max-width:1100px;width:100%}
+  .hero-badge{display:inline-block;padding:6px 14px;border:1px solid var(--border2);border-radius:999px;font-size:.78rem;color:var(--soft);background:rgba(255,255,255,.02);margin-bottom:18px}
+  .hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.4rem,6vw,4.5rem);line-height:1.05;margin-bottom:18px;background:var(--grad-hero);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero-sub{color:var(--soft);font-size:clamp(1rem,1.5vw,1.15rem);max-width:640px;margin:0 auto 48px}
+  .portal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:820px;margin:0 auto}
+  .portal-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 28px;cursor:pointer;transition:all .35s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+  .portal-card::before{content:"";position:absolute;inset:0;background:var(--grad);opacity:0;transition:opacity .35s}
+  .portal-card:hover{transform:translateY(-8px) rotateX(2deg);border-color:transparent;box-shadow:0 25px 60px rgba(0,0,0,.5),var(--shadow-glow)}
+  .portal-card:hover::before{opacity:.08}
+  .portal-card.admin{--grad:var(--grad-admin)}
+  .portal-card.student{--grad:var(--grad-student)}
+  .portal-icon{width:64px;height:64px;border-radius:18px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+  .portal-card h3{font-family:'Syne',sans-serif;font-size:1.5rem;margin-bottom:8px}
+  .portal-card p{color:var(--soft);font-size:.92rem}
+  .portal-cta{margin-top:18px;display:inline-flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;color:var(--accent2)}
+
+  /* ============ LOGIN ============ */
+  .login-wrap{align-items:center;justify-content:center;padding:24px}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px 32px;width:100%;max-width:420px;box-shadow:var(--shadow-card);animation:slideUp .4s ease}
+  .login-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 18px}
+  .login-card.admin .login-icon{background:var(--grad-admin)}
+  .login-card.student .login-icon{background:var(--grad-student)}
+  .login-card h2{font-family:'Syne',sans-serif;text-align:center;margin-bottom:6px}
+  .login-card .sub{text-align:center;color:var(--soft);font-size:.9rem;margin-bottom:24px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:.8rem;color:var(--soft);margin-bottom:6px;font-weight:500}
+  .input,select.input,textarea.input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-family:inherit;font-size:.92rem;transition:border .2s,box-shadow .2s}
+  .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+  textarea.input{resize:vertical;min-height:80px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border:none;border-radius:10px;font-family:inherit;font-weight:600;font-size:.92rem;cursor:pointer;transition:all .2s;text-decoration:none}
+  .btn-primary{background:var(--grad-hero);color:#fff;box-shadow:0 6px 18px rgba(59,130,246,.3)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.45)}
+  .btn-admin{background:var(--grad-admin);color:#fff}
+  .btn-student{background:var(--grad-student);color:#fff}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border2)}
+  .btn-ghost:hover{background:var(--card2);border-color:var(--accent)}
+  .btn-danger{background:var(--red);color:#fff}
+  .btn-success{background:var(--green);color:#fff}
+  .btn-block{width:100%}
+  .btn-sm{padding:7px 12px;font-size:.82rem;border-radius:8px}
+  .login-footer{margin-top:18px;text-align:center;font-size:.85rem;color:var(--muted)}
+  .login-footer a{color:var(--accent2);text-decoration:none;cursor:pointer}
+  .hint{margin-top:12px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:.78rem;color:var(--soft)}
+
+  /* ============ APP SHELL (sidebar + topbar) ============ */
+  .app{display:flex;min-height:100vh;width:100%}
+  .sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;transition:transform .3s ease;z-index:50}
+  .sb-brand{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+  .sb-logo{width:36px;height:36px;border-radius:10px;background:var(--grad-hero);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+  .sb-name{font-family:'Syne',sans-serif;font-weight:700;font-size:1.05rem}
+  .sb-role{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .sb-nav{flex:1;padding:14px 10px;overflow-y:auto}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--soft);cursor:pointer;font-size:.92rem;font-weight:500;margin-bottom:3px;transition:all .2s;border:1px solid transparent}
+  .nav-item:hover{background:var(--card);color:var(--text)}
+  .nav-item.active{background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(139,92,246,.1));color:#fff;border-color:rgba(59,130,246,.25);box-shadow:inset 0 0 0 1px rgba(59,130,246,.1)}
+  .nav-item .ico{width:20px;text-align:center}
+  .sb-foot{padding:14px;border-top:1px solid var(--border)}
+  .user-chip{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:var(--card)}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--grad-hero);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:.85rem;flex-shrink:0;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .user-info{flex:1;min-width:0}
+  .user-name{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .user-meta{font-size:.7rem;color:var(--muted)}
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);background:rgba(15,21,37,.7);backdrop-filter:blur(10px);position:sticky;top:0;z-index:40}
+  .topbar-left{display:flex;align-items:center;gap:12px}
+  .ham{display:none;background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;cursor:pointer;font-size:1.1rem}
+  .topbar h1{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700}
+  .topbar-right{display:flex;align-items:center;gap:10px}
+  .content{flex:1;padding:24px;overflow-y:auto}
+  .section{display:none;animation:fadeIn .25s ease}
+  .section.active{display:block}
+  .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:45}
+
+  /* Stats / cards */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:transform .25s,border-color .25s}
+  .stat:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .stat::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad-hero)}
+  .stat-label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .stat-value{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800}
+  .stat-sub{font-size:.78rem;color:var(--soft);margin-top:4px}
+  .stat.green::before{background:linear-gradient(90deg,var(--green),#34d399)}
+  .stat.amber::before{background:linear-gradient(90deg,var(--amber),#fbbf24)}
+  .stat.purple::before{background:var(--grad-admin)}
+  .stat.cyan::before{background:var(--grad-student)}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem}
+  .panel-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* Tables */
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  th{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.72rem;font-weight:600}
+  .b-green{background:rgba(16,185,129,.15);color:#34d399}
+  .b-red{background:rgba(239,68,68,.15);color:#fca5a5}
+  .b-amber{background:rgba(245,158,11,.15);color:#fcd34d}
+  .b-blue{background:rgba(59,130,246,.15);color:#93c5fd}
+  .b-purple{background:rgba(139,92,246,.15);color:#c4b5fd}
+  .chip{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.72rem;background:var(--bg2);color:var(--soft)}
+
+  /* Announcement cards */
+  .ann-list{display:grid;gap:14px}
+  .ann-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .25s;animation:slideUp .3s ease}
+  .ann-card:hover{border-color:var(--accent);box-shadow:var(--shadow-glow)}
+  .ann-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;align-items:center}
+  .ann-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:6px}
+  .ann-body{color:var(--soft);font-size:.92rem;line-height:1.55;margin-bottom:8px;white-space:pre-wrap}
+  .ann-link{font-size:.85rem;margin-top:6px}
+  .ann-link a{color:var(--accent2);word-break:break-all}
+  .ann-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+
+  /* Replies */
+  .reply{
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:8px;
+    margin-left:20px; /* Add indentation */
+    font-size:.88rem;
+    position:relative;
+    border-left:3px solid var(--accent2); /* Add colored left border */
+  }
+  
+  /* Reply indicator line */
+  .reply::before{
+    content:"↳";
+    position:absolute;
+    left:-18px;
+    top:12px;
+    color:var(--accent2);
+    font-size:0.9rem;
+    font-weight:bold;
+  }
+  
+  .reply .who{font-weight:600;color:var(--accent2);font-size:.78rem}
+  .reply .when{color:var(--muted);font-size:.72rem;float:right}
+  
+  /* Reply content */
+  .reply-content{
+    margin-top:4px;
+    line-height:1.4;
+    color:var(--text);
+  }
+  
+  /* Reply input area */
+  .reply-input-area{
+    margin-top:12px;
+    margin-left:20px;
+    padding-top:8px;
+    border-top:1px solid var(--border);
+  }
+
+  /* Empty state */
+  .empty{text-align:center;padding:48px 20px;color:var(--muted)}
+  .empty-icon{font-size:3rem;margin-bottom:10px;opacity:.6}
+
+  /* Modals */
+  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+  .modal.open{display:flex;animation:fadeIn .2s ease}
+  .modal-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:pop .3s ease;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .modal-card.lg{max-width:720px}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .modal-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.2rem}
+  .x-btn{background:transparent;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;padding:0 6px}
+  .x-btn:hover{color:var(--text)}
+  .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
+
+  /* Toast */
+  .toast-stack{position:fixed;top:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:200;max-width:calc(100% - 36px)}
+  .toast{background:var(--card);border:1px solid var(--border2);border-left:4px solid var(--accent);padding:12px 16px;border-radius:10px;font-size:.88rem;animation:slideUp .25s ease;box-shadow:var(--shadow-card);max-width:360px}
+  .toast.success{border-left-color:var(--green)}
+  .toast.error{border-left-color:var(--red)}
+  .toast.info{border-left-color:var(--accent2)}
+
+  /* Photo viewer */
+  .photo-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:150;align-items:center;justify-content:center;padding:20px;flex-direction:column;gap:14px}
+  .photo-viewer.open{display:flex;animation:fadeIn .2s ease}
+  .photo-viewer img{max-width:100%;max-height:75vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.6);animation:pop .3s ease}
+  .photo-info{background:rgba(20,30,50,.85);border:1px solid var(--border2);padding:12px 18px;border-radius:10px;text-align:center;backdrop-filter:blur(8px)}
+  .photo-info .nm{font-weight:700;font-family:'Syne',sans-serif;margin-bottom:2px}
+  .photo-info .dt{color:var(--soft);font-size:.85rem}
+  .photo-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.1);border:1px solid var(--border2);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+
+  /* Camera */
+  .cam-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:4/3}
+  .cam-wrap video,.cam-wrap canvas{width:100%;height:100%;object-fit:cover;display:block}
+  .cam-overlay{position:absolute;left:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;font-size:.78rem;padding:6px 10px;border-radius:6px;backdrop-filter:blur(4px);font-family:monospace}
+
+  /* Success animation */
+  .success-anim{width:80px;height:80px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:pop .5s ease;color:#fff;font-size:2.4rem;box-shadow:0 0 0 0 rgba(16,185,129,.5);animation:pop .5s ease,glowGreen 2s ease infinite}
+  @keyframes glowGreen{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4)}50%{box-shadow:0 0 0 18px rgba(16,185,129,0)}}
+
+  /* Skeleton */
+  .skel{background:linear-gradient(90deg,var(--bg2) 0%,var(--card2) 50%,var(--bg2) 100%);background-size:200% 100%;animation:shimmer 1.4s linear infinite;border-radius:8px;height:14px}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* Recipient selection styling */
+  .recipient-selection {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--bg2);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .student-checkbox-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 4px;
+  }
+  
+  .student-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    padding: 2px 0;
+  }
+
+  /* Utility */
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .grow{flex:1}
+  .muted{color:var(--muted)}
+  .soft{color:var(--soft)}
+  .right{text-align:right}
+  .mt{margin-top:14px}
+  .mb{margin-bottom:14px}
+  .hidden{display:none!important}
+  .tiny{font-size:.78rem}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .photo-thumb{width:54px;height:54px;border-radius:8px;object-fit:cover;cursor:pointer;border:1px solid var(--border2);transition:transform .2s}
+  .photo-thumb:hover{transform:scale(1.08);border-color:var(--accent)}
+
+  /* Responsive */
+  @media (max-width:900px){
+    .ham{display:inline-flex}
+    .sidebar{position:fixed;left:0;top:0;transform:translateX(-100%)}
+    .sidebar.open{transform:translateX(0);box-shadow:0 0 40px rgba(0,0,0,.5)}
+    .sb-overlay.open{display:block}
+    .content{padding:16px}
+    .topbar{padding:12px 16px}
+    .topbar h1{font-size:1.05rem}
+    .grid-2{grid-template-columns:1fr}
+    
+    /* Adjust reply indentation on mobile */
+    .reply{margin-left:12px}
+    .reply::before{left:-15px;width:12px}
+    .reply-input-area{margin-left:12px}
+  }
+  @media (max-width:520px){
+    .stat-value{font-size:1.6rem}
+    .modal-card{padding:18px}
+    .login-card{padding:28px 20px}
+    .panel{padding:14px}
+    .btn{padding:10px 14px;font-size:.88rem}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== LANDING ========== -->
+<section id="landing" class="page active">
+  <div class="hero-wrap">
+    <span class="hero-badge">✨ Smart Campus Portal · v2.0</span>
+    <h1 class="hero-title">EduNexus</h1>
+    <p class="hero-sub">A premium futuristic portal connecting administrators and students with announcements, attendance, and instant communication — all in one elegant dashboard.</p>
+    <div class="portal-grid">
+      <div class="portal-card admin" onclick="showLogin('admin')">
+        <div class="portal-icon">🛡️</div>
+        <h3>Admin Portal</h3>
+        <p>Full access to manage students, announcements, attendance and security.</p>
+        <div class="portal-cta">Enter Admin →</div>
+      </div>
+      <div class="portal-card student" onclick="showLogin('student')">
+        <div class="portal-icon">🎓</div>
+        <h3>Student Portal</h3>
+        <p>View announcements, mark attendance with photo and reply to admin.</p>
+        <div class="portal-cta">Enter Student →</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== ADMIN LOGIN ========== -->
+<section id="adminLogin" class="page login-wrap">
+  <div class="login-card admin">
+    <div class="login-icon">🛡️</div>
+    <h2>Admin Sign In</h2>
+    <div class="sub">Authorized administrators only</div>
+    <div class="field"><label>Username</label><input class="input" id="aLoginUser" placeholder="admin" /></div>
+    <div class="field"><label>Password</label><input class="input" id="aLoginPass" type="password" placeholder="••••••••" /></div>
+    <button class="btn btn-admin btn-block" onclick="adminLogin()">Sign In as Admin</button>
+    <div class="login-footer"><a onclick="showPage('landing')">← Back to portal selection</a></div>
+    <div class="hint">Default credentials → <b>admin</b> / <b>admin123</b> (change after first login)</div>
+  </div>
+</section>
+
+<!-- ========== STUDENT LOGIN ========== -->
+<section id="studentLogin" class="page login-wrap">
+  <div class="login-card student">
+    <div class="login-icon">🎓</div>
+    <h2>Student Sign In</h2>
+    <div class="sub">Use credentials issued by your admin</div>
+    <div class="field"><label>Username</label><input class="input" id="sLoginUser" placeholder="your username" /></div>
+    <div class="field"><label>Password</label><input class="input" id="sLoginPass" type="password" placeholder="••••••••" /></div>
+    <button class="btn btn-student btn-block" onclick="studentLogin()">Sign In as Student</button>
+    <div class="login-footer"><a onclick="showPage('landing')">← Back to portal selection</a></div>
+    <div class="hint">No account? Ask your admin to create one for you.</div>
+  </div>
+</section>
+
+<!-- ========== ADMIN APP ========== -->
+<section id="adminApp" class="page">
+  <div class="app">
+    <div class="sb-overlay" id="adminOverlay" onclick="toggleSidebar('admin',false)"></div>
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">EN</div>
+        <div><div class="sb-name">EduNexus</div><div class="sb-role">Admin</div></div>
+      </div>
+      <nav class="sb-nav" id="adminNav">
+        <div class="nav-item active" data-sec="a-dash" onclick="adminGo('a-dash',this)"><span class="ico">📊</span> Dashboard</div>
+        <div class="nav-item" data-sec="a-students" onclick="adminGo('a-students',this)"><span class="ico">👥</span> Students</div>
+        <div class="nav-item" data-sec="a-anns" onclick="adminGo('a-anns',this)"><span class="ico">📢</span> Announcements</div>
+        <div class="nav-item" data-sec="a-replies" onclick="adminGo('a-replies',this)"><span class="ico">💬</span> Student Replies</div>
+        <div class="nav-item" data-sec="a-results" onclick="adminGo('a-results',this)"><span class="ico">📝</span> Results</div>
+        <div class="nav-item" data-sec="a-att" onclick="adminGo('a-att',this)"><span class="ico">📸</span> Attendance</div>
+        <div class="nav-item" data-sec="a-pass" onclick="adminGo('a-pass',this)"><span class="ico">🔐</span> Passwords</div>
+        <div class="nav-item" data-sec="a-settings" onclick="adminGo('a-settings',this)"><span class="ico">⚙️</span> Settings</div>
+      </nav>
+      <div class="sb-foot">
+        <div class="user-chip">
+          <div class="avatar">A</div>
+          <div class="user-info"><div class="user-name">Administrator</div><div class="user-meta">Full access</div></div>
+        </div>
+        <button class="btn btn-ghost btn-block btn-sm" style="margin-top:10px" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="ham" onclick="toggleSidebar('admin',true)">☰</button>
+          <h1 id="aPageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-right"><span class="chip">🛡️ Admin</span></div>
+      </div>
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <div id="a-dash" class="section active">
+          <div class="stats" id="aStats"></div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Recent Activity</div></div>
+            <div id="aActivity"></div>
+          </div>
+        </div>
+
+        <!-- STUDENTS -->
+        <div id="a-students" class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Students</div>
+              <div class="panel-actions">
+                <input class="input" id="stuSearch" placeholder="🔍 Search…" style="width:200px" oninput="renderStudents()" />
+                <button class="btn btn-primary" onclick="openModal('mAddStudent')">+ Add Student</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="stuTable">
+                <thead><tr><th></th><th>Name</th><th>Class</th><th>Username</th><th>Email</th><th>Mobile</th><th>Actions</th></tr></thead>
+                <tbody id="stuBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ANNOUNCEMENTS -->
+        <div id="a-anns" class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Announcements</div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" onclick="openModal('mAddAnn')">+ New Announcement</button>
+              </div>
+            </div>
+            <div id="aAnnList" class="ann-list"></div>
+          </div>
+        </div>
+
+        <!-- REPLIES -->
+        <div id="a-replies" class="section">
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Replies (admin-only view)</div></div>
+            <div id="aRepList"></div>
+          </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="a-results" class="section">
+          <div class="stats" id="resultStats"></div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Student Results Management</div>
+              <div class="panel-actions">
+                <button class="btn btn-primary" onclick="openModal('mAddResult')">+ Add Result</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="resultTable">
+                <thead><tr><th>Student</th><th>Subject</th><th>Exam</th><th>Marks</th><th>Total</th><th>Percentage</th><th>Grade</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody id="resultBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ATTENDANCE -->
+        <div id="a-att" class="section">
+          <div class="stats" id="attStats"></div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Attendance Control</div>
+              <div class="panel-actions">
+                <button id="attToggleBtn" class="btn btn-success" onclick="toggleAttendance()">Enable Attendance</button>
+              </div>
+            </div>
+            <div id="attStatus" class="soft tiny"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Daily Attendance</div>
+              <div class="panel-actions">
+                <input type="date" class="input" id="attDate" onchange="renderDayAtt()" />
+              </div>
+            </div>
+            <div id="attDayList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Last 7 Days</div></div>
+            <div class="table-wrap"><table><thead><tr><th>Date</th><th>Present</th><th>Absent</th><th>%</th></tr></thead><tbody id="attWeek"></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Per-Student History</div>
+              <div class="panel-actions">
+                <select class="input" id="attStuSel" onchange="renderStuHistory()" style="width:220px"></select>
+              </div>
+            </div>
+            <div id="attStuHistory"></div>
+          </div>
+        </div>
+
+        <!-- PASSWORDS -->
+        <div id="a-pass" class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Admin Password</div>
+              <div class="panel-actions">
+                <button class="btn btn-ghost btn-sm" onclick="openModal('mForgot')">Forgot Password?</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('mAdminPass')">Change Password</button>
+              </div>
+            </div>
+            <div class="mb">
+              <div class="field" style="max-width:300px;">
+                <label>Current Admin Password</label>
+                <div class="row">
+                  <input class="input" id="adminCurrentPassDisplay" type="password" readonly style="background:var(--bg2);cursor:not-allowed;" />
+                  <button class="btn btn-ghost btn-sm" onclick="togglePasswordVisibility('adminCurrentPassDisplay')" style="margin-left:8px;">👁️</button>
+                </div>
+                <div class="tiny muted mt" style="margin-top:4px;">Your current admin password (click eye to show/hide)</div>
+              </div>
+            </div>
+            <div class="panel-title tiny mb">Admin Password Change History</div>
+            <div id="adminPassHistory"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Student Passwords</div>
+              <div class="panel-actions">
+                <input class="input" id="stuPwSearch" placeholder="🔍 Search student…" style="width:200px" oninput="renderStudentPasswords()" />
+                <button class="btn btn-ghost btn-sm" onclick="toggleAllStudentPasswords()">� Hide All Passwords</button>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table class="table">
+                <thead><tr><th>Student</th><th>Username</th><th>Old Password</th><th>Current Password</th><th>Last Changed</th><th>Actions</th></tr></thead>
+                <tbody id="studentPasswordsTable"></tbody>
+              </table>
+            </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Student Password History</div>
+              <div class="panel-actions">
+                <select class="input" id="passStuSel" onchange="renderStuPassHistory()" style="width:220px"></select>
+                <button class="btn btn-ghost btn-sm" onclick="exportPasswords()">⬇ Export JSON</button>
+              </div>
+            </div>
+            <div id="stuPassHistory"></div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div id="a-settings" class="section">
+          <div class="panel">
+            <div class="panel-title mb">Notifications</div>
+            <div class="row mb">
+              <label class="row" style="gap:6px"><input type="checkbox" id="ntfBrowser" onchange="saveNtf()"/> Browser notifications</label>
+              <button class="btn btn-ghost btn-sm" onclick="askNotifPerm()">Request permission</button>
+              <button class="btn btn-ghost btn-sm" onclick="testNotif()">Test</button>
+            </div>
+            <div class="row mb">
+              <label class="row" style="gap:6px"><input type="checkbox" id="ntfEmail" onchange="saveNtf()"/> Email notifications (EmailJS)</label>
+              <button class="btn btn-ghost btn-sm" onclick="testEmail()">Test Email</button>
+              <button class="btn btn-ghost btn-sm" onclick="debugEmailJS()">Debug EmailJS</button>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title mb">EmailJS Status</div>
+            <div id="emailStatus" class="soft tiny"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== STUDENT APP ========== -->
+<section id="studentApp" class="page">
+  <div class="app">
+    <div class="sb-overlay" id="stuOverlay" onclick="toggleSidebar('stu',false)"></div>
+    <aside class="sidebar" id="stuSidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">EN</div>
+        <div><div class="sb-name">EduNexus</div><div class="sb-role">Student</div></div>
+      </div>
+      <nav class="sb-nav" id="stuNav">
+        <div class="nav-item active" data-sec="s-dash" onclick="stuGo('s-dash',this)"><span class="ico">🏠</span> Dashboard</div>
+        <div class="nav-item" data-sec="s-anns" onclick="stuGo('s-anns',this)"><span class="ico">📢</span> Announcements</div>
+        <div class="nav-item" data-sec="s-results" onclick="stuGo('s-results',this)"><span class="ico">📝</span> My Results</div>
+        <div class="nav-item" data-sec="s-att" onclick="stuGo('s-att',this)"><span class="ico">📸</span> Attendance</div>
+        <div class="nav-item" data-sec="s-profile" onclick="stuGo('s-profile',this)"><span class="ico">👤</span> Profile</div>
+      </nav>
+      <div class="sb-foot">
+        <div class="user-chip" id="stuUserChip">
+          <div class="avatar" id="stuAvatar">S</div>
+          <div class="user-info"><div class="user-name" id="stuUserName">Student</div><div class="user-meta" id="stuUserMeta">—</div></div>
+        </div>
+        <button class="btn btn-ghost btn-block btn-sm" style="margin-top:10px" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="ham" onclick="toggleSidebar('stu',true)">☰</button>
+          <h1 id="sPageTitle">Dashboard</h1>
+        </div>
+        <div class="topbar-right"><span class="chip">🎓 Student</span></div>
+      </div>
+      <div class="content">
+        <div id="s-dash" class="section active">
+          <div class="stats" id="sStats"></div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Latest Announcements</div></div>
+            <div id="sLatestAnns" class="ann-list"></div>
+          </div>
+        </div>
+
+        <div id="s-anns" class="section">
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">All Announcements</div></div>
+            <div id="sAnnList" class="ann-list"></div>
+          </div>
+        </div>
+
+        <div id="s-results" class="section">
+          <div class="stats" id="sResultStats"></div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">My Academic Results</div></div>
+            <div id="sResultList"></div>
+          </div>
+        </div>
+
+        <div id="s-att" class="section">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-title">Mark Today's Attendance</div>
+              <div class="panel-actions"><span id="attEnabledChip" class="chip">…</span></div>
+            </div>
+            <div id="sAttAction"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">My Attendance History</div></div>
+            <div id="sAttHistory"></div>
+          </div>
+        </div>
+
+        <div id="s-profile" class="section">
+          <div class="panel" id="sProfileCard"></div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">My Account Information</div></div>
+            <div class="grid-2">
+              <div class="field">
+                <label>Current Password</label>
+                <div class="row">
+                  <input class="input" id="sCurrentPassDisplay" type="password" readonly style="background:var(--bg2);cursor:not-allowed;" />
+                  <button class="btn btn-ghost btn-sm" onclick="togglePasswordVisibility('sCurrentPassDisplay')" style="margin-left:8px;">👁️</button>
+                </div>
+                <div class="tiny muted mt" style="margin-top:4px;">Your current password (click eye to show/hide)</div>
+              </div>
+              <div class="field">
+                <label>Username</label>
+                <input class="input" id="sUsernameDisplay" readonly style="background:var(--bg2);cursor:not-allowed;" />
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div class="panel-title">Change Password</div></div>
+            <div class="grid-2">
+              <div class="field"><label>Current Password</label><input class="input" id="sCurPass" type="password" placeholder="Enter current password" /></div>
+              <div class="field"><label>New Password</label><input class="input" id="sNewPass" type="password" placeholder="Enter new password" /></div>
+            </div>
+            <button class="btn btn-primary" onclick="studentChangePass()">Update Password</button>
+            <div class="mt"><div class="panel-title tiny mb">My password change history</div><div id="myPassHist"></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Add Result -->
+<div class="modal" id="mAddResult">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Add Student Result</div><button class="x-btn" onclick="closeModal('mAddResult')">×</button></div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Student *</label>
+        <select class="input" id="nr-student">
+          <option value="">Select Student</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Subject *</label>
+        <input class="input" id="nr-subject" placeholder="e.g., Mathematics, Physics" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Exam Type *</label>
+        <select class="input" id="nr-examType">
+          <option value="midterm">Mid-term Exam</option>
+          <option value="final">Final Exam</option>
+          <option value="quiz">Quiz</option>
+          <option value="assignment">Assignment</option>
+          <option value="project">Project</option>
+          <option value="practical">Practical</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Exam Date</label>
+        <input class="input" id="nr-examDate" type="date" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Marks Obtained *</label>
+        <input class="input" id="nr-marksObtained" type="number" min="0" placeholder="e.g., 85" />
+      </div>
+      <div class="field">
+        <label>Total Marks *</label>
+        <input class="input" id="nr-totalMarks" type="number" min="1" placeholder="e.g., 100" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Comments (Optional)</label>
+      <textarea class="input" id="nr-comments" rows="2" placeholder="Additional comments about performance..."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mAddResult')">Cancel</button>
+      <button class="btn btn-primary" onclick="addResult()">Add Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Result -->
+<div class="modal" id="mEditResult">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Edit Result</div><button class="x-btn" onclick="closeModal('mEditResult')">×</button></div>
+    <input type="hidden" id="er-id" />
+    <div class="grid-2">
+      <div class="field">
+        <label>Student</label>
+        <input class="input" id="er-studentName" readonly style="background:var(--bg2);" />
+      </div>
+      <div class="field">
+        <label>Subject *</label>
+        <input class="input" id="er-subject" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Exam Type *</label>
+        <select class="input" id="er-examType">
+          <option value="midterm">Mid-term Exam</option>
+          <option value="final">Final Exam</option>
+          <option value="quiz">Quiz</option>
+          <option value="assignment">Assignment</option>
+          <option value="project">Project</option>
+          <option value="practical">Practical</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Exam Date</label>
+        <input class="input" id="er-examDate" type="date" />
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Marks Obtained *</label>
+        <input class="input" id="er-marksObtained" type="number" min="0" />
+      </div>
+      <div class="field">
+        <label>Total Marks *</label>
+        <input class="input" id="er-totalMarks" type="number" min="1" />
+      </div>
+    </div>
+    <div class="field">
+      <label>Comments</label>
+      <textarea class="input" id="er-comments" rows="2"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mEditResult')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditResult()">Save Changes</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="mAddStudent">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Add Student</div><button class="x-btn" onclick="closeModal('mAddStudent')">×</button></div>
+    <div class="grid-2">
+      <div class="field"><label>Full Name *</label><input class="input" id="ns-name"/></div>
+      <div class="field"><label>Class</label><input class="input" id="ns-class" placeholder="e.g. CSE 2024"/></div>
+      <div class="field"><label>Username *</label><input class="input" id="ns-username"/></div>
+      <div class="field"><label>Password *</label><input class="input" id="ns-password"/></div>
+      <div class="field"><label>Email *</label><input class="input" id="ns-email" type="email"/></div>
+      <div class="field"><label>Mobile</label><input class="input" id="ns-mobile"/></div>
+    </div>
+    <div class="field"><label>Profile Photo (optional)</label><input class="input" id="ns-photo" type="file" accept="image/*"/></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mAddStudent')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStudent()">Create Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Student -->
+<div class="modal" id="mEditStudent">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Edit Student</div><button class="x-btn" onclick="closeModal('mEditStudent')">×</button></div>
+    <input type="hidden" id="es-id"/>
+    <div class="grid-2">
+      <div class="field"><label>Name</label><input class="input" id="es-name"/></div>
+      <div class="field"><label>Class</label><input class="input" id="es-class"/></div>
+      <div class="field"><label>Username</label><input class="input" id="es-username"/></div>
+      <div class="field"><label>Password</label><input class="input" id="es-password"/></div>
+      <div class="field"><label>Email</label><input class="input" id="es-email" type="email"/></div>
+      <div class="field"><label>Mobile</label><input class="input" id="es-mobile"/></div>
+    </div>
+    <div class="field"><label>Replace Photo</label><input class="input" id="es-photo" type="file" accept="image/*"/></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mEditStudent')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Announcement -->
+<div class="modal" id="mAddAnn">
+  <div class="modal-card lg">
+    <div class="modal-head"><div class="modal-title">New Announcement</div><button class="x-btn" onclick="closeModal('mAddAnn')">×</button></div>
+    <div class="field"><label>Title *</label><input class="input" id="na-title"/></div>
+    <div class="grid-2">
+      <div class="field"><label>Category</label>
+        <select class="input" id="na-type"><option value="general">General</option><option value="urgent">Urgent</option><option value="event">Event</option><option value="exam">Exam</option></select>
+      </div>
+      <div class="field"><label>Audience (class)</label><input class="input" id="na-aud" placeholder="all or e.g. CSE 2024" value="all"/></div>
+    </div>
+    <div class="field"><label>Message *</label><textarea class="input" id="na-body" rows="4"></textarea></div>
+    <div class="field"><label>Optional URL</label><input class="input" id="na-link" placeholder="https://…"/></div>
+    
+    <!-- Email Recipients Section -->
+    <div class="field">
+      <label>Email Recipients</label>
+      <div style="margin-bottom: 10px;">
+        <label class="row" style="gap:6px; margin-bottom:8px;">
+          <input type="radio" name="emailRecipients" value="all" id="email-all" checked onchange="toggleRecipientSelection()"/>
+          Send to All Students with Email
+        </label>
+        <label class="row" style="gap:6px; margin-bottom:8px;">
+          <input type="radio" name="emailRecipients" value="class" id="email-class" onchange="toggleRecipientSelection()"/>
+          Send to Students in Selected Class Only
+        </label>
+        <label class="row" style="gap:6px; margin-bottom:8px;">
+          <input type="radio" name="emailRecipients" value="selected" id="email-selected" onchange="toggleRecipientSelection()"/>
+          Send to Selected Students
+        </label>
+        <label class="row" style="gap:6px;">
+          <input type="radio" name="emailRecipients" value="none" id="email-none" onchange="toggleRecipientSelection()"/>
+          Don't Send Email (Announcement Only)
+        </label>
+      </div>
+      
+      <!-- Student Selection Area -->
+      <div id="studentSelectionArea" class="hidden" style="border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--bg2); max-height: 200px; overflow-y: auto;">
+        <div style="margin-bottom: 8px; font-size: 0.85rem; color: var(--soft);">Select students to receive email:</div>
+        <div style="margin-bottom: 8px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="selectAllStudents(true)">Select All</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="selectAllStudents(false)">Deselect All</button>
+        </div>
+        <div id="studentCheckboxList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4px;">
+          <!-- Student checkboxes will be populated here -->
+        </div>
+      </div>
+      
+      <!-- Email Preview -->
+      <div id="emailPreview" style="margin-top: 8px; font-size: 0.8rem; color: var(--muted);">
+        <span id="emailPreviewText">Will send to all students with email addresses</span>
+      </div>
+    </div>
+    
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mAddAnn')">Cancel</button>
+      <button class="btn btn-primary" onclick="addAnnouncement()">Publish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="modal" id="mConfirm">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head"><div class="modal-title" id="cfTitle">Confirm</div><button class="x-btn" onclick="closeModal('mConfirm')">×</button></div>
+    <div id="cfMsg" class="soft"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mConfirm')">Cancel</button>
+      <button class="btn btn-danger" id="cfYes">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Change Password -->
+<div class="modal" id="mAdminPass">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head"><div class="modal-title">Change Admin Password</div><button class="x-btn" onclick="closeModal('mAdminPass')">×</button></div>
+    <div class="field"><label>Current Password</label><input class="input" id="apCur" type="password"/></div>
+    <div class="field"><label>New Password</label><input class="input" id="apNew" type="password"/></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mAdminPass')">Cancel</button>
+      <button class="btn btn-primary" onclick="changeAdminPass()">Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password recovery -->
+<div class="modal" id="mForgot">
+  <div class="modal-card" style="max-width:440px">
+    <div class="modal-head"><div class="modal-title">Admin Password Recovery</div><button class="x-btn" onclick="closeModal('mForgot')">×</button></div>
+    <div class="soft tiny mb">⚠️ For your security, change your password immediately after viewing.</div>
+    <div class="field"><label>Current Admin Password</label>
+      <div class="row"><input class="input grow" id="forgotShow" readonly/><button class="btn btn-ghost btn-sm" onclick="copyAdminPass()">📋 Copy</button></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-primary" onclick="closeModal('mForgot')">Done</button></div>
+  </div>
+</div>
+
+<!-- Camera capture for attendance -->
+<div class="modal" id="mCamera">
+  <div class="modal-card lg">
+    <div class="modal-head"><div class="modal-title">📸 Capture Attendance Photo</div><button class="x-btn" onclick="closeCamera()">×</button></div>
+    <div class="cam-wrap">
+      <video id="camVideo" autoplay playsinline></video>
+      <canvas id="camCanvas" class="hidden"></canvas>
+      <div class="cam-overlay" id="camOverlay">—</div>
+    </div>
+    <div class="soft tiny mt">Your name, the date, and IST time will be embedded on the photo.</div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeCamera()">Cancel</button>
+      <button class="btn btn-success" id="captureBtn" onclick="capturePhoto()">📷 Capture & Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance success -->
+<div class="modal" id="mAttSuccess">
+  <div class="modal-card" style="max-width:420px;text-align:center">
+    <div class="success-anim">✓</div>
+    <div class="modal-title" style="margin-bottom:6px">Attendance Marked!</div>
+    <div class="soft tiny" id="attSuccessInfo"></div>
+    <div class="soft tiny mt" id="attSuccessCountdown">Closing in 5s…</div>
+  </div>
+</div>
+
+<!-- Mark Present (admin) -->
+<div class="modal" id="mMarkPresent">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head"><div class="modal-title">Mark Student Present</div><button class="x-btn" onclick="closeModal('mMarkPresent')">×</button></div>
+    <div class="soft mb" id="mpInfo"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('mMarkPresent')">Cancel</button>
+      <button class="btn btn-success" id="mpYes">✓ Mark Present</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo viewer -->
+<div class="photo-viewer" id="photoViewer" onclick="closePhotoViewer(event)">
+  <button class="photo-close" onclick="closePhotoViewer()">×</button>
+  <img id="pvImg" alt="Attendance photo"/>
+  <div class="photo-info">
+    <div class="nm" id="pvName"></div>
+    <div class="dt" id="pvWhen"></div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+
+<script>
+/* ========== STORE ========== */
+const KEY = 'edunexus_v2';
+let store = { admin:{u:'admin',p:'admin123',hist:[]}, students:[], announcements:[], replies:[], attendance:{enabled:false,records:[]}, ntf:{browser:false,email:true}, results:[] };
+let session = null; // {type:'admin'|'student', id?}
+let cam = { stream:null, stuId:null };
+
+function load(){ try{ const r=localStorage.getItem(KEY); if(r) store=Object.assign(store,JSON.parse(r));}catch(e){} }
+function save(){ localStorage.setItem(KEY, JSON.stringify(store)); }
+function uid(){ return Math.random().toString(36).slice(2,11); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function nowIST(){
+  const d = new Date();
+  const opts = { timeZone:'Asia/Kolkata', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true };
+  return new Intl.DateTimeFormat('en-IN',opts).format(d);
+}
+function todayIST(){
+  const d=new Date(); const opts={timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'};
+  const parts=new Intl.DateTimeFormat('en-CA',opts).formatToParts(d).reduce((a,p)=>{a[p.type]=p.value;return a;},{});
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+function timeIST(){
+  return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true}).format(new Date());
+}
+
+/* ========== TOASTS ========== */
+function toast(msg, type='info'){
+  const stack=document.getElementById('toasts');
+  const el=document.createElement('div'); el.className='toast '+type; el.textContent=msg;
+  stack.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(-6px)';setTimeout(()=>el.remove(),250)},3500);
+}
+
+/* ========== MODALS ========== */
+function openModal(id){ 
+  document.getElementById(id).classList.add('open'); 
+  
+  // Initialize announcement modal
+  if (id === 'mAddAnn') {
+    // Reset to default selection
+    document.getElementById('email-all').checked = true;
+    document.getElementById('studentSelectionArea').classList.add('hidden');
+    updateEmailPreview();
+    
+    // Add event listener for audience field changes
+    const audField = document.getElementById('na-aud');
+    audField.addEventListener('input', updateEmailPreview);
+  }
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function confirmAction(title,msg,onYes){
+  document.getElementById('cfTitle').textContent=title;
+  document.getElementById('cfMsg').textContent=msg;
+  const btn=document.getElementById('cfYes');
+  const fresh=btn.cloneNode(true); btn.parentNode.replaceChild(fresh,btn);
+  fresh.onclick=()=>{closeModal('mConfirm'); onYes();};
+  openModal('mConfirm');
+}
+
+/* ========== NAVIGATION ========== */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showLogin(type){ showPage(type==='admin'?'adminLogin':'studentLogin'); }
+function toggleSidebar(which,open){
+  const sb=document.getElementById(which==='admin'?'adminSidebar':'stuSidebar');
+  const ov=document.getElementById(which==='admin'?'adminOverlay':'stuOverlay');
+  sb.classList.toggle('open',open); ov.classList.toggle('open',open);
+}
+function adminGo(sec,el){
+  document.querySelectorAll('#adminApp .section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(sec).classList.add('active');
+  document.querySelectorAll('#adminNav .nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles={'a-dash':'Dashboard','a-students':'Students','a-anns':'Announcements','a-replies':'Student Replies','a-results':'Results','a-att':'Attendance','a-pass':'Password Management','a-settings':'Settings'};
+  document.getElementById('aPageTitle').textContent=titles[sec]||'';
+  toggleSidebar('admin',false);
+  if(sec==='a-dash') refreshAdminDash();
+  if(sec==='a-students') renderStudents();
+  if(sec==='a-anns') renderAdminAnns();
+  if(sec==='a-replies') renderAdminReplies();
+  if(sec==='a-results') refreshResults();
+  if(sec==='a-att') refreshAttendance();
+  if(sec==='a-pass') refreshPasswordSection();
+  if(sec==='a-settings') refreshSettings();
+}
+function stuGo(sec,el){
+  document.querySelectorAll('#studentApp .section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(sec).classList.add('active');
+  document.querySelectorAll('#stuNav .nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles={'s-dash':'Dashboard','s-anns':'Announcements','s-results':'My Results','s-att':'Attendance','s-profile':'My Profile'};
+  document.getElementById('sPageTitle').textContent=titles[sec]||'';
+  toggleSidebar('stu',false);
+  const stu=currentStudent(); if(!stu) return;
+  if(sec==='s-dash') refreshStudentDash(stu);
+  if(sec==='s-anns') renderStudentAnns(stu);
+  if(sec==='s-results') refreshStudentResults(stu);
+  if(sec==='s-att') renderStudentAttendance(stu);
+  if(sec==='s-profile') renderStudentProfile(stu);
+}
+
+/* ========== AUTH ========== */
+function adminLogin(){
+  const u=document.getElementById('aLoginUser').value.trim();
+  const p=document.getElementById('aLoginPass').value;
+  if(u===store.admin.u && p===store.admin.p){
+    session={type:'admin'}; persistSession();
+    showPage('adminApp'); adminGo('a-dash',document.querySelector('#adminNav .nav-item'));
+    toast('Welcome back, Admin','success');
+  } else toast('Invalid admin credentials','error');
+}
+function studentLogin(){
+  const u=document.getElementById('sLoginUser').value.trim();
+  const p=document.getElementById('sLoginPass').value;
+  const stu=store.students.find(s=>s.username===u && s.password===p);
+  if(!stu) return toast('Invalid student credentials','error');
+  session={type:'student',id:stu.id}; persistSession();
+  showPage('studentApp');
+  document.getElementById('stuUserName').textContent=stu.name;
+  document.getElementById('stuUserMeta').textContent=stu.class||'Student';
+  const av=document.getElementById('stuAvatar');
+  if(stu.photo) av.innerHTML=`<img src="${stu.photo}" alt=""/>`;
+  else av.textContent=(stu.name||'S').charAt(0).toUpperCase();
+  stuGo('s-dash',document.querySelector('#stuNav .nav-item'));
+  toast('Welcome, '+stu.name,'success');
+}
+function logout(){ session=null; localStorage.removeItem(KEY+':sess'); showPage('landing'); toast('Logged out','info'); }
+function persistSession(){ localStorage.setItem(KEY+':sess', JSON.stringify(session)); }
+function restoreSession(){
+  try{ const s=JSON.parse(localStorage.getItem(KEY+':sess')||'null'); if(!s) return;
+    session=s;
+    if(s.type==='admin'){ showPage('adminApp'); adminGo('a-dash',document.querySelector('#adminNav .nav-item')); }
+    else { const stu=store.students.find(x=>x.id===s.id); if(!stu){session=null;return;}
+      document.getElementById('stuUserName').textContent=stu.name;
+      document.getElementById('stuUserMeta').textContent=stu.class||'Student';
+      const av=document.getElementById('stuAvatar');
+      if(stu.photo) av.innerHTML=`<img src="${stu.photo}" alt=""/>`; else av.textContent=(stu.name||'S').charAt(0).toUpperCase();
+      showPage('studentApp'); stuGo('s-dash',document.querySelector('#stuNav .nav-item'));
+    }
+  }catch(e){}
+}
+function currentStudent(){ if(!session||session.type!=='student')return null; return store.students.find(s=>s.id===session.id); }
+
+/* ========== ADMIN: DASHBOARD ========== */
+function refreshAdminDash(){
+  const today=todayIST();
+  const presentToday=store.attendance.records.filter(r=>r.date===today).length;
+  const totalResults=store.results ? store.results.length : 0;
+  
+  document.getElementById('aStats').innerHTML=`
+    ${stat('Total Students',store.students.length,'👥','purple')}
+    ${stat('Announcements',store.announcements.length,'📢','cyan')}
+    ${stat('Results Added',totalResults,'📝','green')}
+    ${stat('Present Today',presentToday+' / '+store.students.length,'✅','amber')}
+  `;
+  // recent activity
+  const acts=[];
+  store.announcements.slice(0,3).forEach(a=>acts.push({t:'📢 '+a.title,w:a.date}));
+  store.attendance.records.slice(-5).reverse().forEach(r=>{
+    const stu=store.students.find(s=>s.id===r.stuId);
+    acts.push({t:`📸 ${stu?.name||'?'} marked attendance`,w:`${r.date} ${r.time}`});
+  });
+  if(store.results) {
+    store.results.slice(0,3).forEach(r=>{
+      const stu=store.students.find(s=>s.id===r.studentId);
+      acts.push({t:`📝 Result: ${stu?.name||'?'} - ${r.subject} (${r.percentage}%)`,w:r.date});
+    });
+  }
+  document.getElementById('aActivity').innerHTML = acts.length
+    ? acts.slice(0,8).map(a=>`<div class="row" style="padding:8px 0;border-bottom:1px solid var(--border)"><div class="grow">${esc(a.t)}</div><div class="tiny muted">${esc(a.w)}</div></div>`).join('')
+    : '<div class="empty"><div class="empty-icon">✨</div>No activity yet.</div>';
+}
+function stat(label,val,icon,cls=''){
+  return `<div class="stat ${cls}"><div class="stat-label">${icon} ${label}</div><div class="stat-value">${val}</div></div>`;
+}
+
+/* ========== ADMIN: STUDENTS ========== */
+function addStudent(){
+  const name=v('ns-name'), cls=v('ns-class'), un=v('ns-username'), pw=v('ns-password'), em=v('ns-email'), mb=v('ns-mobile');
+  if(!name||!un||!pw||!em) return toast('Name, username, password, email are required','error');
+  if(store.students.some(s=>s.username===un)) return toast('Username already exists','error');
+  const file=document.getElementById('ns-photo').files[0];
+  const finalize=(photo)=>{
+    store.students.push({id:uid(),name,class:cls,username:un,password:pw,email:em,mobile:mb,photo:photo||'',joined:nowIST(),passHist:[{date:nowIST(),by:'admin',action:'created'}]});
+    save(); closeModal('mAddStudent');
+    ['ns-name','ns-class','ns-username','ns-password','ns-email','ns-mobile'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ns-photo').value='';
+    renderStudents(); toast('Student created','success');
+  };
+  if(file) toDataURL(file,finalize); else finalize('');
+}
+function v(id){ return document.getElementById(id).value.trim(); }
+function toDataURL(f,cb){ const r=new FileReader(); r.onload=()=>cb(r.result); r.readAsDataURL(f); }
+function renderStudents(){
+  const q=(document.getElementById('stuSearch')?.value||'').toLowerCase();
+  const rows=store.students.filter(s=>!q||s.name.toLowerCase().includes(q)||s.username.toLowerCase().includes(q)||(s.class||'').toLowerCase().includes(q));
+  const tb=document.getElementById('stuBody');
+  if(!rows.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="empty-icon">👥</div>No students yet.</div></td></tr>`; return; }
+  tb.innerHTML=rows.map(s=>`
+    <tr>
+      <td><div class="avatar" style="width:36px;height:36px;font-size:.8rem">${s.photo?`<img src="${s.photo}"/>`:esc((s.name||'?').charAt(0).toUpperCase())}</div></td>
+      <td><b>${esc(s.name)}</b></td>
+      <td>${esc(s.class||'—')}</td>
+      <td><code>${esc(s.username)}</code></td>
+      <td>${esc(s.email||'—')}</td>
+      <td>${esc(s.mobile||'—')}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editStudent('${s.id}')">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+function editStudent(id){
+  const s=store.students.find(x=>x.id===id); if(!s)return;
+  ['name','class','username','password','email','mobile'].forEach(k=>document.getElementById('es-'+k).value=s[k]||'');
+  document.getElementById('es-id').value=id;
+  document.getElementById('es-photo').value='';
+  openModal('mEditStudent');
+}
+function saveEditStudent(){
+  const id=document.getElementById('es-id').value;
+  const s=store.students.find(x=>x.id===id); if(!s)return;
+  const newPw=v('es-password');
+  const oldPw=s.password;
+  ['name','class','username','password','email','mobile'].forEach(k=>{ s[k]=v('es-'+k); });
+  if(newPw && newPw!==oldPw){
+    s.passHist=s.passHist||[]; s.passHist.push({date:nowIST(),by:'admin',action:'changed by admin',oldPassword:oldPw,newPassword:newPw});
+    sendPasswordEmail(s,'Administrator');
+  }
+  const file=document.getElementById('es-photo').files[0];
+  const done=()=>{ save(); closeModal('mEditStudent'); renderStudents(); toast('Student updated','success'); };
+  if(file) toDataURL(file,d=>{s.photo=d;done();}); else done();
+}
+function deleteStudent(id){
+  const s=store.students.find(x=>x.id===id); if(!s)return;
+  confirmAction('Delete Student',`Permanently delete "${s.name}"? Their attendance and replies will remain.`,()=>{
+    store.students=store.students.filter(x=>x.id!==id); save(); renderStudents(); toast('Student deleted','success');
+  });
+}
+
+/* ========== ADMIN: ANNOUNCEMENTS ========== */
+
+// Helper functions for recipient selection
+function toggleRecipientSelection() {
+  const selectedOption = document.querySelector('input[name="emailRecipients"]:checked').value;
+  const selectionArea = document.getElementById('studentSelectionArea');
+  const previewText = document.getElementById('emailPreviewText');
+  
+  if (selectedOption === 'selected') {
+    selectionArea.classList.remove('hidden');
+    populateStudentCheckboxes();
+    updateEmailPreview();
+  } else {
+    selectionArea.classList.add('hidden');
+    updateEmailPreview();
+  }
+}
+
+function populateStudentCheckboxes() {
+  const checkboxList = document.getElementById('studentCheckboxList');
+  const studentsWithEmail = store.students.filter(s => s.email);
+  
+  checkboxList.innerHTML = studentsWithEmail.map(student => `
+    <label class="row" style="gap:6px; font-size:0.85rem; padding:2px 0;">
+      <input type="checkbox" value="${student.id}" onchange="updateEmailPreview()" class="student-checkbox"/>
+      ${esc(student.name)} (${esc(student.email)})
+    </label>
+  `).join('');
+}
+
+function selectAllStudents(selectAll) {
+  const checkboxes = document.querySelectorAll('.student-checkbox');
+  checkboxes.forEach(cb => cb.checked = selectAll);
+  updateEmailPreview();
+}
+
+function updateEmailPreview() {
+  const selectedOption = document.querySelector('input[name="emailRecipients"]:checked').value;
+  const previewText = document.getElementById('emailPreviewText');
+  const audience = v('na-aud') || 'all';
+  
+  let studentsWithEmail = store.students.filter(s => s.email);
+  
+  switch(selectedOption) {
+    case 'all':
+      previewText.textContent = `Will send to all ${studentsWithEmail.length} students with email addresses`;
+      break;
+    case 'class':
+      if (audience !== 'all') {
+        const classStudents = studentsWithEmail.filter(s => (s.class || '').toLowerCase() === audience.toLowerCase());
+        previewText.textContent = `Will send to ${classStudents.length} students in class "${audience}" with email addresses`;
+      } else {
+        previewText.textContent = `Will send to all ${studentsWithEmail.length} students with email addresses (no specific class selected)`;
+      }
+      break;
+    case 'selected':
+      const selectedCount = document.querySelectorAll('.student-checkbox:checked').length;
+      previewText.textContent = `Will send to ${selectedCount} selected students`;
+      break;
+    case 'none':
+      previewText.textContent = 'No emails will be sent (announcement only)';
+      break;
+  }
+}
+
+function getSelectedRecipients() {
+  const selectedOption = document.querySelector('input[name="emailRecipients"]:checked').value;
+  const audience = v('na-aud') || 'all';
+  
+  let recipients = [];
+  
+  switch(selectedOption) {
+    case 'all':
+      recipients = store.students.filter(s => s.email);
+      break;
+    case 'class':
+      recipients = store.students.filter(s => s.email);
+      if (audience !== 'all') {
+        recipients = recipients.filter(s => (s.class || '').toLowerCase() === audience.toLowerCase());
+      }
+      break;
+    case 'selected':
+      const selectedIds = Array.from(document.querySelectorAll('.student-checkbox:checked')).map(cb => cb.value);
+      recipients = store.students.filter(s => s.email && selectedIds.includes(s.id));
+      break;
+    case 'none':
+      recipients = [];
+      break;
+  }
+  
+  return recipients;
+}
+
+function addAnnouncement(){
+  const title=v('na-title'), type=document.getElementById('na-type').value, body=v('na-body'), link=v('na-link'), aud=v('na-aud')||'all';
+  if(!title||!body) return toast('Title and message required','error');
+  
+  // Get selected recipients before creating announcement
+  const selectedRecipients = getSelectedRecipients();
+  const emailOption = document.querySelector('input[name="emailRecipients"]:checked').value;
+  
+  const ann={id:uid(),title,type,body,link,audience:aud,date:nowIST()};
+  store.announcements.unshift(ann); save(); closeModal('mAddAnn');
+  ['na-title','na-body','na-link'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('na-aud').value='all';
+  
+  // Reset email recipient selection
+  document.getElementById('email-all').checked = true;
+  document.getElementById('studentSelectionArea').classList.add('hidden');
+  
+  renderAdminAnns(); refreshAdminDash();
+  notifyBrowser('📢 New Announcement',title);
+  
+  console.log('📢 Announcement created:', ann);
+  console.log('📧 Email option selected:', emailOption);
+  console.log('📧 Selected recipients:', selectedRecipients.length);
+  
+  if(emailOption !== 'none' && store.ntf.email!==false && selectedRecipients.length > 0) {
+    console.log('🚀 Triggering announcement emails...');
+    sendAnnouncementEmails(ann, selectedRecipients);
+  } else {
+    if (emailOption === 'none') {
+      console.log('📧 Email sending disabled by user choice');
+    } else if (store.ntf.email === false) {
+      console.log('📧 Email notifications disabled in settings');
+    } else if (selectedRecipients.length === 0) {
+      console.log('📧 No recipients selected or no students with email addresses');
+      toast('No email recipients selected or no students have email addresses', 'info');
+    }
+  }
+  
+  toast('Announcement published','success');
+}
+async function sendAnnouncementEmails(ann, customRecipients = null){
+  console.log('🔄 Starting sendAnnouncementEmails...');
+  console.log('📢 Announcement:', ann);
+  console.log('👥 Custom recipients provided:', !!customRecipients);
+  
+  const cfg=window.EMAILJS_CONFIG||{};
+  
+  // Debug configuration
+  console.log('📧 EmailJS Config Check:', {
+    emailjs: !!window.emailjs,
+    publicKey: !!cfg.PUBLIC_KEY,
+    serviceId: !!cfg.SERVICE_ID,
+    template: !!cfg.ANNOUNCEMENT_TEMPLATE,
+    config: cfg
+  });
+  
+  if(!window.emailjs||!cfg.PUBLIC_KEY||!cfg.SERVICE_ID||!cfg.ANNOUNCEMENT_TEMPLATE) {
+    console.error('❌ EmailJS not properly configured');
+    toast('Email service not configured properly. Check console for details.','error');
+    return;
+  }
+  
+  // Use custom recipients if provided, otherwise use the original logic
+  let recipients;
+  if (customRecipients) {
+    recipients = customRecipients;
+    console.log('📧 Using custom recipients list:', recipients.length);
+  } else {
+    recipients = store.students.filter(s=>s.email);
+    if(ann.audience && ann.audience!=='all') {
+      recipients = recipients.filter(s=>(s.class||'').toLowerCase()===ann.audience.toLowerCase());
+    }
+    console.log('📧 Using automatic recipient selection:', recipients.length);
+  }
+  
+  console.log('👥 All students in store:', store.students.length);
+  console.log('📧 Students with email addresses:', store.students.filter(s=>s.email).length);
+  console.log('👥 Recipients found:', recipients.length, recipients.map(r => ({name: r.name, email: r.email})));
+  
+  if(!recipients.length) { 
+    console.warn('⚠️ No recipients found!');
+    console.log('🔍 Debug info:');
+    console.log('- Total students:', store.students.length);
+    console.log('- Students with emails:', store.students.filter(s=>s.email).length);
+    console.log('- Announcement audience:', ann.audience);
+    console.log('- All students:', store.students.map(s => ({name: s.name, email: s.email, class: s.class})));
+    
+    toast('No students with email addresses found. Please add student email addresses first.','error'); 
+    return; 
+  }
+  
+  toast(`📧 Sending to ${recipients.length} recipient(s)…`,'info');
+  let ok=0,fail=0;
+  
+  for(const stu of recipients){
+    try{ 
+      console.log('📤 Sending email to:', stu.email, 'with template:', cfg.ANNOUNCEMENT_TEMPLATE);
+      
+      // Validate student email
+      if (!stu.email || !stu.email.includes('@')) {
+        console.error('❌ Invalid email address for student:', stu.name, 'Email:', stu.email);
+        fail++;
+        continue;
+      }
+      
+      const emailData = {
+        to_email: stu.email,
+        to_name: stu.name || 'Student',
+        user_email: stu.email, // Additional field for recipient
+        student_name: stu.name || 'Student',
+        announcement_title: ann.title,
+        announcement_message: ann.body,
+        announcement_link: ann.link || '',
+        announcement_type: ann.type || 'general',
+        date: nowIST().split(',')[0], // Just the date part
+        time: nowIST().split(',')[1] || '', // Just the time part
+        title: ann.title,
+        message: ann.body,
+        link: ann.link || '',
+        portal_link: window.location.href, // Add portal login link
+        portal_url: window.location.origin + window.location.pathname, // Clean portal URL
+        from_name: 'EduNexus Admin'
+      };
+      
+      console.log('📋 Email data for', stu.email, ':', emailData);
+      
+      const result = await emailjs.send(cfg.SERVICE_ID, cfg.ANNOUNCEMENT_TEMPLATE, emailData);
+      ok++; 
+      console.log('✅ Email sent successfully to:', stu.email, 'Result:', result);
+    }
+    catch(e){ 
+      console.error('❌ EmailJS send failed for', stu.email, ':', e);
+      console.error('❌ Error details:', {
+        message: e.message,
+        status: e.status,
+        text: e.text,
+        student: stu.name,
+        email: stu.email
+      });
+      fail++; 
+    }
+  }
+  
+  const message = `📧 Email Summary: ${ok} sent successfully${fail ? `, ${fail} failed` : ''}`;
+  console.log('📊 Final email summary:', message);
+  
+  if (fail > 0) {
+    toast(`${message}. Check console for error details.`, 'error');
+  } else if (ok > 0) {
+    toast(message, 'success');
+  } else {
+    toast('No emails were sent. Check console for details.', 'error');
+  }
+}
+function renderAdminAnns(){
+  const el=document.getElementById('aAnnList');
+  if(!store.announcements.length){ el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>No announcements yet.</div>'; return; }
+  el.innerHTML=store.announcements.map(a=>{
+    const reps=store.replies.filter(r=>r.annId===a.id);
+    return `<div class="ann-card">
+      <div class="ann-meta"><span class="badge ${typeBadge(a.type)}">${typeLabel(a.type)}</span><span class="chip">👥 ${esc(a.audience||'all')}</span><span class="chip">📅 ${esc(a.date)}</span></div>
+      <div class="ann-title">${esc(a.title)}</div>
+      <div class="ann-body">${esc(a.body)}</div>
+      ${a.link?`<div class="ann-link">🔗 <a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.link)}</a></div>`:''}
+      <div class="ann-actions"><span class="muted tiny">💬 ${reps.length} reply${reps.length===1?'':'s'}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteAnn('${a.id}')">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function typeBadge(t){return ({urgent:'b-red',event:'b-blue',exam:'b-amber',general:'b-purple'})[t]||'b-purple';}
+function typeLabel(t){return ({urgent:'🚨 Urgent',event:'🎉 Event',exam:'📝 Exam',general:'📌 General'})[t]||'📌 General';}
+function deleteAnn(id){
+  confirmAction('Delete Announcement','This cannot be undone. Replies are preserved.',()=>{
+    store.announcements=store.announcements.filter(a=>a.id!==id); save(); renderAdminAnns(); refreshAdminDash(); toast('Deleted','success');
+  });
+}
+
+/* ========== ADMIN: REPLIES ========== */
+function renderAdminReplies(){
+  const el=document.getElementById('aRepList');
+  if(!store.replies.length){ el.innerHTML='<div class="empty"><div class="empty-icon">💬</div>No replies yet.</div>'; return; }
+  const groups={};
+  store.replies.forEach(r=>{ (groups[r.annId]=groups[r.annId]||[]).push(r); });
+  el.innerHTML=Object.keys(groups).map(aid=>{
+    const ann=store.announcements.find(a=>a.id===aid);
+    return `<div class="panel" style="margin-bottom:12px;background:var(--bg2)">
+      <div class="ann-title" style="font-size:1rem">${esc(ann?ann.title:'(deleted)')}</div>
+      ${groups[aid].map(r=>{
+        const stu=store.students.find(s=>s.id===r.stuId);
+        return `<div class="reply">
+          <span class="who">${esc(stu?stu.name:'?')}</span> 
+          <span class="when">${esc(r.date)}</span>
+          <div class="reply-content">${esc(r.text)}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* ========== ATTENDANCE ========== */
+function refreshAttendance(){
+  document.getElementById('attDate').value=todayIST();
+  const btn=document.getElementById('attToggleBtn');
+  btn.textContent= store.attendance.enabled?'Disable Attendance':'Enable Attendance';
+  btn.className='btn '+(store.attendance.enabled?'btn-danger':'btn-success');
+  document.getElementById('attStatus').textContent= store.attendance.enabled?'✅ Attendance is OPEN. Students can submit photos now.':'⚪ Attendance is CLOSED.';
+  // stats
+  const today=todayIST();
+  const todayRecs=store.attendance.records.filter(r=>r.date===today);
+  document.getElementById('attStats').innerHTML=`
+    ${stat('Status',store.attendance.enabled?'OPEN':'CLOSED','📡',store.attendance.enabled?'green':'amber')}
+    ${stat('Present Today',todayRecs.length,'✅','green')}
+    ${stat('Absent Today',Math.max(0,store.students.length-todayRecs.length),'❌','amber')}
+    ${stat('Total Records',store.attendance.records.length,'🗂️','cyan')}
+  `;
+  renderDayAtt(); renderWeekAtt(); fillAttStuSelect(); renderStuHistory();
+}
+function toggleAttendance(){
+  store.attendance.enabled=!store.attendance.enabled; save(); refreshAttendance();
+  toast('Attendance '+(store.attendance.enabled?'enabled':'disabled'),'success');
+}
+function renderDayAtt(){
+  const date=document.getElementById('attDate').value||todayIST();
+  const recs=store.attendance.records.filter(r=>r.date===date);
+  const presentIds=new Set(recs.map(r=>r.stuId));
+  const presentList=store.students.filter(s=>presentIds.has(s.id));
+  const absentList=store.students.filter(s=>!presentIds.has(s.id));
+  const el=document.getElementById('attDayList');
+  el.innerHTML=`
+    <div class="panel-title tiny" style="color:var(--green);margin-bottom:6px">✅ Present (${presentList.length})</div>
+    ${presentList.length?presentList.map(s=>{
+      const r=recs.find(x=>x.stuId===s.id);
+      return `<div class="row" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        ${r&&r.photo?`<img src="${r.photo}" class="photo-thumb" onclick="openPhotoViewer('${r.id}')"/>`:'<div class="avatar">'+esc(s.name.charAt(0))+'</div>'}
+        <div class="grow"><b>${esc(s.name)}</b><div class="tiny muted">${esc(s.class||'')} · ${esc(r?.time||'')}${r?.markedBy==='admin'?' · <span class="badge b-purple">admin-marked</span>':''}</div></div>
+        ${r&&r.photo?`<button class="btn btn-ghost btn-sm" onclick="openPhotoViewer('${r.id}')">👁️ View</button>`:''}
+      </div>`;
+    }).join(''):'<div class="empty tiny">Nobody present yet.</div>'}
+    <div class="panel-title tiny mt" style="color:var(--red);margin-bottom:6px">❌ Absent (${absentList.length})</div>
+    ${absentList.length?absentList.map(s=>`
+      <div class="row" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <div class="avatar">${s.photo?`<img src="${s.photo}"/>`:esc(s.name.charAt(0))}</div>
+        <div class="grow"><b>${esc(s.name)}</b><div class="tiny muted">${esc(s.class||'')}</div></div>
+        ${date===todayIST()?`<button class="btn btn-success btn-sm" onclick="adminMarkPresent('${s.id}')">✅ Mark Present</button>`:''}
+      </div>`).join(''):'<div class="empty tiny">Everyone present 🎉</div>'}
+  `;
+}
+function adminMarkPresent(stuId){
+  const s=store.students.find(x=>x.id===stuId); if(!s)return;
+  document.getElementById('mpInfo').textContent=`Mark "${s.name}" present for today (${todayIST()})?`;
+  const btn=document.getElementById('mpYes');
+  const fresh=btn.cloneNode(true); btn.parentNode.replaceChild(fresh,btn);
+  fresh.onclick=()=>{
+    const date=todayIST();
+    if(store.attendance.records.some(r=>r.stuId===stuId && r.date===date)) return toast('Already marked today','error');
+    store.attendance.records.push({id:uid(),stuId,date,time:timeIST(),photo:'',markedBy:'admin'});
+    save(); closeModal('mMarkPresent'); refreshAttendance(); toast(`${s.name} marked present`,'success');
+  };
+  openModal('mMarkPresent');
+}
+function renderWeekAtt(){
+  const tb=document.getElementById('attWeek'); const rows=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    const recs=store.attendance.records.filter(r=>r.date===ds);
+    const total=store.students.length||1;
+    rows.push(`<tr><td>${ds}</td><td><span class="badge b-green">${recs.length}</span></td><td><span class="badge b-red">${Math.max(0,total-recs.length)}</span></td><td>${Math.round(recs.length/total*100)}%</td></tr>`);
+  }
+  tb.innerHTML=rows.join('');
+}
+function fillAttStuSelect(){
+  const sel=document.getElementById('attStuSel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">— Select student —</option>'+store.students.map(s=>`<option value="${s.id}">${esc(s.name)} (${esc(s.class||'')})</option>`).join('');
+  if(cur) sel.value=cur;
+}
+function renderStuHistory(){
+  const id=document.getElementById('attStuSel').value;
+  const el=document.getElementById('attStuHistory');
+  if(!id){ el.innerHTML='<div class="empty tiny">Pick a student to see history.</div>'; return; }
+  const recs=store.attendance.records.filter(r=>r.stuId===id).slice().reverse();
+  if(!recs.length){ el.innerHTML='<div class="empty tiny">No records.</div>'; return; }
+  el.innerHTML=recs.map(r=>`
+    <div class="row" style="padding:8px 0;border-bottom:1px solid var(--border)">
+      ${r.photo?`<img src="${r.photo}" class="photo-thumb" onclick="openPhotoViewer('${r.id}')"/>`:'<div class="avatar">📅</div>'}
+      <div class="grow"><b>${esc(r.date)}</b> <span class="tiny muted">${esc(r.time)}</span> ${r.markedBy==='admin'?'<span class="badge b-purple">admin</span>':'<span class="badge b-green">self</span>'}</div>
+      ${r.photo?`<button class="btn btn-ghost btn-sm" onclick="openPhotoViewer('${r.id}')">👁️ View</button>`:''}
+    </div>`).join('');
+}
+
+/* ========== STUDENT: ATTENDANCE FLOW ========== */
+function renderStudentAttendance(stu){
+  const enabled=store.attendance.enabled;
+  document.getElementById('attEnabledChip').textContent= enabled?'🟢 OPEN':'🔴 CLOSED';
+  const today=todayIST();
+  const already=store.attendance.records.find(r=>r.stuId===stu.id && r.date===today);
+  const action=document.getElementById('sAttAction');
+  if(already){
+    action.innerHTML=`<div class="row"><div class="success-anim" style="width:48px;height:48px;font-size:1.4rem">✓</div>
+      <div><b>You're marked present today.</b><div class="tiny soft">${esc(already.time)}</div></div>
+      ${already.photo?`<button class="btn btn-ghost btn-sm" onclick="openPhotoViewer('${already.id}')">👁️ View Photo</button>`:''}</div>`;
+  } else if(!enabled){
+    action.innerHTML=`<div class="empty tiny">Attendance is currently closed by admin.</div>`;
+  } else {
+    action.innerHTML=`<div class="row"><div class="grow soft tiny">Capture a quick photo to confirm attendance. Date & time will be embedded automatically.</div>
+      <button class="btn btn-success" onclick="openCamera()">📸 Open Camera</button></div>`;
+  }
+  // history
+  const recs=store.attendance.records.filter(r=>r.stuId===stu.id).slice().reverse();
+  const total=recs.length;
+  const monthKey=todayIST().slice(0,7);
+  const month=recs.filter(r=>r.date.startsWith(monthKey)).length;
+  const last=recs[0];
+  document.getElementById('sAttHistory').innerHTML=`
+    <div class="stats" style="margin-bottom:14px">
+      ${stat('Total Days',total,'📅','cyan')}
+      ${stat('This Month',month,'📆','green')}
+      ${stat('Last Marked',last?last.date:'—','⏰','purple')}
+    </div>
+    ${recs.length?recs.map(r=>`
+      <div class="row" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        ${r.photo?`<img src="${r.photo}" class="photo-thumb" onclick="openPhotoViewer('${r.id}')"/>`:'<div class="avatar">📅</div>'}
+        <div class="grow"><b>${esc(r.date)}</b>${r.date===todayIST()?' <span class="badge b-green">Today</span>':''}<div class="tiny muted">${esc(r.time)}${r.markedBy==='admin'?' · admin-marked':''}</div></div>
+        ${r.photo?`<button class="btn btn-ghost btn-sm" onclick="openPhotoViewer('${r.id}')">👁️</button>`:''}
+      </div>`).join(''):'<div class="empty tiny">No attendance records yet.</div>'}
+  `;
+}
+async function openCamera(){
+  if(!navigator.mediaDevices?.getUserMedia) return toast('Camera not supported on this device','error');
+  try{
+    cam.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    document.getElementById('camVideo').srcObject=cam.stream;
+    openModal('mCamera');
+    cam.tick=setInterval(()=>{ document.getElementById('camOverlay').textContent=`${todayIST()}  ${timeIST()}  IST`; },500);
+  }catch(e){ toast('Camera permission denied','error'); }
+}
+function closeCamera(){
+  if(cam.stream){ cam.stream.getTracks().forEach(t=>t.stop()); cam.stream=null; }
+  if(cam.tick){clearInterval(cam.tick);cam.tick=null;}
+  closeModal('mCamera');
+}
+function capturePhoto(){
+  const stu=currentStudent(); if(!stu) return;
+  const today=todayIST();
+  if(store.attendance.records.some(r=>r.stuId===stu.id && r.date===today)) { toast('Already marked today','error'); closeCamera(); return; }
+  if(!store.attendance.enabled){ toast('Attendance not open','error'); closeCamera(); return; }
+  const v=document.getElementById('camVideo'); const c=document.getElementById('camCanvas');
+  const w=v.videoWidth||640,h=v.videoHeight||480; c.width=w; c.height=h;
+  const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h);
+  // overlay
+  const t=timeIST(); const txt=`${stu.name}  •  ${today}  ${t} IST`;
+  ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(0,h-60,w,60);
+  ctx.fillStyle='#fff'; ctx.font=`bold ${Math.max(16,w/40)}px DM Sans, Arial`;
+  ctx.fillText(txt,12,h-22);
+  const dataURL=c.toDataURL('image/jpeg',0.82);
+  const rec={id:uid(),stuId:stu.id,date:today,time:t,photo:dataURL,markedBy:'self'};
+  store.attendance.records.push(rec); save(); closeCamera();
+  // success modal
+  document.getElementById('attSuccessInfo').innerHTML=`<b>${esc(stu.name)}</b><br>${esc(today)} · ${esc(t)} IST`;
+  openModal('mAttSuccess');
+  let n=5; const cd=document.getElementById('attSuccessCountdown');
+  cd.textContent=`Closing in ${n}s…`;
+  const iv=setInterval(()=>{ n--; cd.textContent=`Closing in ${n}s…`; if(n<=0){clearInterval(iv);closeModal('mAttSuccess');} },1000);
+  toast('Attendance submitted','success');
+  renderStudentAttendance(stu); refreshStudentDash(stu);
+}
+
+/* ========== STUDENT: DASH/ANNS/PROFILE ========== */
+function refreshStudentDash(stu){
+  const recs=store.attendance.records.filter(r=>r.stuId===stu.id);
+  const today=todayIST();
+  const todayRec=recs.find(r=>r.date===today);
+  document.getElementById('sStats').innerHTML=`
+    ${stat("Today's Status",todayRec?'PRESENT':'PENDING','📅',todayRec?'green':'amber')}
+    ${stat('Total Attendance',recs.length,'✅','cyan')}
+    ${stat('Announcements',visibleAnns(stu).length,'📢','purple')}
+  `;
+  document.getElementById('sLatestAnns').innerHTML=visibleAnns(stu).slice(0,3).map(a=>annCard(a,stu,true)).join('') || '<div class="empty tiny">No announcements.</div>';
+}
+function visibleAnns(stu){
+  return store.announcements.filter(a=>!a.audience||a.audience==='all'||(a.audience||'').toLowerCase()===(stu.class||'').toLowerCase());
+}
+function renderStudentAnns(stu){
+  const list=visibleAnns(stu);
+  document.getElementById('sAnnList').innerHTML= list.length?list.map(a=>annCard(a,stu,true)).join(''):'<div class="empty"><div class="empty-icon">📭</div>No announcements yet.</div>';
+}
+function annCard(a,stu,allowReply){
+  const reps=store.replies.filter(r=>r.annId===a.id && r.stuId===stu.id);
+  return `<div class="ann-card">
+    <div class="ann-meta"><span class="badge ${typeBadge(a.type)}">${typeLabel(a.type)}</span><span class="chip">📅 ${esc(a.date)}</span></div>
+    <div class="ann-title">${esc(a.title)}</div>
+    <div class="ann-body">${esc(a.body)}</div>
+    ${a.link?`<div class="ann-link">🔗 <a href="${esc(a.link)}" target="_blank" rel="noopener">${esc(a.link)}</a></div>`:''}
+    ${reps.map(r=>`<div class="reply">
+      <span class="who">You</span>
+      <span class="when">${esc(r.date)}</span>
+      <div class="reply-content">${esc(r.text)}</div>
+    </div>`).join('')}
+    ${allowReply?`<div class="reply-input-area">
+      <div class="row">
+        <input class="input grow" id="rep-${a.id}" placeholder="Reply to admin…"/>
+        <button class="btn btn-primary btn-sm" onclick="submitReply('${a.id}')">Send</button>
+      </div>
+    </div>`:''}
+  </div>`;
+}
+function submitReply(aid){
+  const stu=currentStudent(); if(!stu) return;
+  const inp=document.getElementById('rep-'+aid); const text=(inp.value||'').trim();
+  if(!text) return;
+  store.replies.push({id:uid(),annId:aid,stuId:stu.id,text,date:nowIST()}); save();
+  inp.value=''; renderStudentAnns(stu); toast('Reply sent','success');
+}
+function renderStudentProfile(stu){
+  document.getElementById('sProfileCard').innerHTML=`
+    <div class="row">
+      <div class="avatar" style="width:64px;height:64px;font-size:1.6rem">${stu.photo?`<img src="${stu.photo}"/>`:esc(stu.name.charAt(0))}</div>
+      <div class="grow"><div class="panel-title">${esc(stu.name)}</div>
+        <div class="tiny soft">${esc(stu.class||'—')} · ${esc(stu.email||'—')} · ${esc(stu.mobile||'—')}</div>
+        <div class="tiny muted">Username: <code>${esc(stu.username)}</code> · Joined ${esc(stu.joined||'')}</div>
+      </div>
+    </div>`;
+  
+  // Populate password and username display fields
+  document.getElementById('sCurrentPassDisplay').value = stu.password || '';
+  document.getElementById('sUsernameDisplay').value = stu.username || '';
+  
+  // history
+  const hist=stu.passHist||[];
+  document.getElementById('myPassHist').innerHTML= hist.length?hist.slice().reverse().map(h=>`<div class="row tiny" style="padding:6px 0;border-bottom:1px solid var(--border)"><div class="grow">${esc(h.action||'changed')}</div><div class="muted">${esc(h.date)} · by ${esc(h.by)}</div></div>`).join(''):'<div class="empty tiny">No password changes yet.</div>';
+}
+function studentChangePass(){
+  const stu=currentStudent(); if(!stu) return;
+  const cur=document.getElementById('sCurPass').value, nw=document.getElementById('sNewPass').value;
+  if(stu.password!==cur) return toast('Current password incorrect','error');
+  if(!nw||nw.length<4) return toast('New password too short','error');
+  const oldPw=stu.password;
+  stu.password=nw; stu.passHist=stu.passHist||[]; stu.passHist.push({date:nowIST(),by:stu.name,action:'self change',oldPassword:oldPw,newPassword:nw});
+  save(); document.getElementById('sCurPass').value=''; document.getElementById('sNewPass').value='';
+  sendPasswordEmail(stu,stu.name); renderStudentProfile(stu); toast('Password updated','success');
+}
+
+/* ========== PASSWORDS (admin) ========== */
+function refreshPasswordSection(){
+  const hist=store.admin.hist||[];
+  
+  // Populate admin password display
+  document.getElementById('adminCurrentPassDisplay').value = store.admin.p || '';
+  
+  document.getElementById('adminPassHistory').innerHTML= hist.length?hist.slice().reverse().map(h=>`
+    <div class="row tiny" style="padding:8px 0;border-bottom:1px solid var(--border)"><div class="grow">${esc(h.action||'changed')}</div><div class="muted">${esc(h.date)} · by ${esc(h.by)}</div></div>
+  `).join(''):'<div class="empty tiny">No changes recorded yet.</div>';
+  const sel=document.getElementById('passStuSel');
+  sel.innerHTML='<option value="">— Select student —</option>'+store.students.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  renderStuPassHistory();
+  renderStudentPasswords();
+}
+let _showAllStuPw=true; // Default to showing passwords for admin
+function toggleAllStudentPasswords(){ 
+  _showAllStuPw=!_showAllStuPw; 
+  renderStudentPasswords(); 
+  // Update button text based on current state
+  const btn = document.querySelector('button[onclick="toggleAllStudentPasswords()"]');
+  if (btn) {
+    btn.textContent = _showAllStuPw ? '🙈 Hide All Passwords' : '👁️ Show All Passwords';
+  }
+}
+function renderStudentPasswords(){
+  const tbody=document.getElementById('studentPasswordsTable'); if(!tbody) return;
+  const q=(document.getElementById('stuPwSearch')?.value||'').toLowerCase();
+  const list=store.students.filter(s=>!q||s.name.toLowerCase().includes(q)||(s.username||'').toLowerCase().includes(q));
+  if(!list.length){ tbody.innerHTML='<tr><td colspan="6" class="empty tiny">No students.</td></tr>'; return; }
+  const mask='••••••••';
+  tbody.innerHTML=list.map(s=>{
+    const hist=(s.passHist||[]).filter(h=>h.newPassword!==undefined);
+    const last=hist[hist.length-1];
+    const oldPw=last?.oldPassword||'';
+    const lastDate=last?last.date:(s.passHist&&s.passHist.length?s.passHist[s.passHist.length-1].date:'—');
+    const curId='spw_c_'+s.id, oldId='spw_o_'+s.id;
+    const cur=s.password||'';
+    const show=_showAllStuPw;
+    return `<tr>
+      <td>${esc(s.name)}</td>
+      <td class="muted">${esc(s.username||'')}</td>
+      <td><span style="font-family:monospace" id="${oldId}">${show?esc(oldPw||'(none)'):mask}</span></td>
+      <td><span style="font-family:monospace" id="${curId}">${show?esc(cur):mask}</span></td>
+      <td class="tiny muted">${esc(lastDate)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" title="${show?'Hide':'Show'} Password" onclick="(function(){const c=document.getElementById('${curId}'),o=document.getElementById('${oldId}');const hidden=c.textContent==='${mask}';c.textContent=hidden?${JSON.stringify(cur)}:'${mask}';o.textContent=hidden?${JSON.stringify(oldPw||'(none)')}:'${mask}';this.textContent=hidden?'🙈':'👁️';this.title=hidden?'Hide Password':'Show Password';})()">${show?'🙈':'👁️'}</button>
+        <button class="btn btn-ghost btn-sm" title="Copy current" onclick="navigator.clipboard.writeText(${JSON.stringify(cur)}).then(()=>toast('Password copied','success'))">📋</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function renderStuPassHistory(){
+  const id=document.getElementById('passStuSel').value;
+  const el=document.getElementById('stuPassHistory');
+  if(!id){ el.innerHTML='<div class="empty tiny">Pick a student to see their password change history.</div>'; return; }
+  const s=store.students.find(x=>x.id===id); const hist=s?.passHist||[];
+function renderStuPassHistory(){
+  const id=document.getElementById('passStuSel').value;
+  const el=document.getElementById('stuPassHistory');
+  if(!id){ el.innerHTML='<div class="empty tiny">Pick a student to see their password change history.</div>'; return; }
+  const s=store.students.find(x=>x.id===id); const hist=s?.passHist||[];
+  const current=`<div class="row" style="padding:10px 12px;margin-bottom:10px;background:var(--bg2);border-radius:8px;align-items:center;gap:8px">
+    <div class="grow"><div class="tiny muted">Current password for ${esc(s.name)}</div>
+      <div style="font-family:monospace;font-size:1.05rem;letter-spacing:1px" id="curPwView_${s.id}">${s.password||''}</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="(function(el,v){const isHidden=el.textContent==='••••••••';el.textContent=isHidden?v:'••••••••';this.textContent=isHidden?'🙈 Hide':'👁️ Show'})(document.getElementById('curPwView_${s.id}'),${JSON.stringify(s.password||'')})">� Hide</button>
+    <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(s.password||'')}).then(()=>toast('Copied','success'))">📋 Copy</button>
+  </div>`;
+  const rows = hist.length?hist.slice().reverse().map((h,i)=>{
+    const hasPw = h.oldPassword!==undefined || h.newPassword!==undefined;
+    const rid='pw_'+s.id+'_'+i;
+    const pwBlock = hasPw?`
+      <div class="row tiny" style="gap:12px;margin-top:6px;flex-wrap:wrap">
+        <div><span class="muted">Old:</span> <span style="font-family:monospace" id="${rid}_o">••••••••</span></div>
+        <div><span class="muted">New:</span> <span style="font-family:monospace" id="${rid}_n">••••••••</span></div>
+        <button class="btn btn-ghost btn-sm" onclick="(function(){const o=document.getElementById('${rid}_o'),n=document.getElementById('${rid}_n');const hidden=o.textContent==='••••••••';o.textContent=hidden?${JSON.stringify(h.oldPassword||'(none)')}:'••••••••';n.textContent=hidden?${JSON.stringify(h.newPassword||'')}:'••••••••';})()">👁️</button>
+      </div>`:'';
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div class="row tiny"><div class="grow"><b>${esc(h.action||'changed')}</b></div><div class="muted">${esc(h.date)} · by ${esc(h.by)}</div></div>
+      ${pwBlock}
+    </div>`;
+  }).join(''):'<div class="empty tiny">No changes yet.</div>';
+  el.innerHTML = current + rows;
+}
+function changeAdminPass(){
+  const cur=document.getElementById('apCur').value, nw=document.getElementById('apNew').value;
+  if(cur!==store.admin.p) return toast('Current password wrong','error');
+  if(!nw||nw.length<4) return toast('New password too short','error');
+  store.admin.p=nw; store.admin.hist=store.admin.hist||[]; store.admin.hist.push({date:nowIST(),by:'admin',action:'self change'});
+  save(); closeModal('mAdminPass'); document.getElementById('apCur').value=''; document.getElementById('apNew').value='';
+  refreshPasswordSection();
+  // notify admin via EmailJS (if any student email is admin's, no-op; we send a generic note via toast)
+  toast('Admin password updated','success');
+}
+function copyAdminPass(){
+  const t=document.getElementById('forgotShow'); t.select(); document.execCommand('copy'); toast('Password copied','success');
+}
+function exportPasswords(){
+  const data={exportedAt:nowIST(),admin:{username:store.admin.u,password:store.admin.p,history:store.admin.hist||[]},
+    students:store.students.map(s=>({id:s.id,name:s.name,username:s.username,password:s.password,history:s.passHist||[]}))};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`edunexus-passwords-${todayIST()}.json`; a.click();
+  URL.revokeObjectURL(url); toast('Exported','success');
+}
+async function sendPasswordEmail(stu,changedBy){
+  console.log('🔄 Starting sendPasswordEmail for:', stu.name, 'by:', changedBy);
+  const cfg=window.EMAILJS_CONFIG||{};
+  
+  if(!window.emailjs||!cfg.PUBLIC_KEY||!cfg.SERVICE_ID||!cfg.PASSWORD_TEMPLATE) {
+    console.error('❌ EmailJS not configured for password emails:', {
+      emailjs: !!window.emailjs,
+      publicKey: !!cfg.PUBLIC_KEY,
+      serviceId: !!cfg.SERVICE_ID,
+      template: !!cfg.PASSWORD_TEMPLATE
+    });
+    return;
+  }
+  if(!stu.email) {
+    console.warn('⚠️ Student has no email address:', stu.name);
+    return;
+  }
+  if(store.ntf.email===false) {
+    console.log('📧 Email notifications disabled');
+    return;
+  }
+  
+  try{ 
+    console.log('📤 Sending password change email to:', stu.email);
+    
+    const emailData = {
+      to_email: stu.email,
+      to_name: stu.name || 'Student',
+      user_email: stu.email, // Additional field for recipient
+      student_name: stu.name || 'Student',
+      changed_by: changedBy || 'System',
+      change_time: nowIST(),
+      date: nowIST().split(',')[0], // Just the date part
+      time: nowIST().split(',')[1] || '', // Just the time part
+      account_type: 'Student Portal',
+      title: 'Password Change Notification',
+      message: `Your EduNexus account password was updated on ${nowIST()} by ${changedBy}. If this wasn't you, contact your admin immediately.`,
+      portal_link: window.location.href, // Add portal login link
+      portal_url: window.location.origin + window.location.pathname, // Clean portal URL
+      from_name: 'EduNexus Admin'
+    };
+    
+    console.log('📋 Password email data:', emailData);
+    
+    const result = await emailjs.send(cfg.SERVICE_ID, cfg.PASSWORD_TEMPLATE, emailData); 
+    console.log('✅ Password change email sent successfully to:', stu.email, 'Result:', result);
+  }
+  catch(e){ 
+    console.error('❌ Password email failed for', stu.email, ':', e); 
+  }
+}
+
+/* ========== PHOTO VIEWER ========== */
+function openPhotoViewer(recId){
+  const r=store.attendance.records.find(x=>x.id===recId); if(!r||!r.photo)return;
+  const stu=store.students.find(s=>s.id===r.stuId);
+  document.getElementById('pvImg').src=r.photo;
+  document.getElementById('pvName').textContent=stu?stu.name:'—';
+  document.getElementById('pvWhen').textContent=`${r.date} · ${r.time}`;
+  document.getElementById('photoViewer').classList.add('open');
+}
+function closePhotoViewer(e){
+  if(e && e.target.tagName==='IMG') return;
+  document.getElementById('photoViewer').classList.remove('open');
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('photoViewer').classList.remove('open');
+    if(document.getElementById('mCamera').classList.contains('open')) closeCamera();
+  }
+});
+
+/* ========== SETTINGS / NOTIFICATIONS ========== */
+function refreshSettings(){
+  document.getElementById('ntfBrowser').checked=!!store.ntf.browser;
+  document.getElementById('ntfEmail').checked= store.ntf.email!==false;
+  const cfg=window.EMAILJS_CONFIG||{};
+  const emailjsStatus = window.emailjs ? 
+    '<span class="badge b-green">✓ Loaded</span>' : 
+    '<span class="badge b-red">✗ Not loaded</span>';
+  
+  document.getElementById('emailStatus').innerHTML=
+    `<strong>Configuration:</strong><br>
+    Service ID: <code>${esc(cfg.SERVICE_ID||'Missing')}</code><br>
+    Public Key: <code>${cfg.PUBLIC_KEY ? cfg.PUBLIC_KEY.substring(0,8)+'...' : 'Missing'}</code><br>
+    Announcement Template: <code>${esc(cfg.ANNOUNCEMENT_TEMPLATE||'Missing')}</code><br>
+    Password Template: <code>${esc(cfg.PASSWORD_TEMPLATE||'Missing')}</code><br>
+    EmailJS SDK: ${emailjsStatus}<br>
+    <br><strong>Debug Info:</strong><br>
+    Students with emails: ${store.students.filter(s=>s.email).length}/${store.students.length}<br>
+    Email notifications: ${store.ntf.email !== false ? 'Enabled' : 'Disabled'}`;
+}
+function saveNtf(){
+  store.ntf.browser=document.getElementById('ntfBrowser').checked;
+  store.ntf.email=document.getElementById('ntfEmail').checked;
+  save(); toast('Settings saved','success');
+}
+function askNotifPerm(){ if('Notification' in window) Notification.requestPermission().then(p=>toast('Permission: '+p,'info')); }
+function testNotif(){ notifyBrowser('EduNexus','Test notification from admin'); }
+async function testEmail(){
+  console.log('🧪 Starting test email...');
+  const cfg=window.EMAILJS_CONFIG||{};
+  
+  console.log('📧 EmailJS Test Config:', {
+    emailjs: !!window.emailjs,
+    publicKey: !!cfg.PUBLIC_KEY,
+    serviceId: !!cfg.SERVICE_ID,
+    template: !!cfg.ANNOUNCEMENT_TEMPLATE,
+    fullConfig: cfg
+  });
+  
+  if(!window.emailjs||!cfg.PUBLIC_KEY||!cfg.SERVICE_ID||!cfg.ANNOUNCEMENT_TEMPLATE) {
+    console.error('❌ EmailJS not properly configured for test');
+    toast('EmailJS not properly configured. Check console for details.','error');
+    return;
+  }
+  
+  // Use admin email or first student with email for testing
+  const students = store.students.filter(s => s.email);
+  let targetEmail = 'test@example.com'; // Default fallback
+  let targetName = 'Test User';
+  
+  if (students.length > 0) {
+    targetEmail = students[0].email;
+    targetName = students[0].name || 'Student';
+    console.log('📧 Using student email for test:', targetEmail);
+  } else {
+    console.log('📧 No students with email found, using fallback:', targetEmail);
+  }
+  
+  try {
+    toast('Sending test email...', 'info');
+    console.log('📤 Sending test email to:', targetEmail);
+    
+    const emailData = {
+      to_email: targetEmail,
+      to_name: targetName,
+      user_email: targetEmail, // Additional field for recipient
+      student_name: targetName,
+      announcement_title: 'Test Email from EduNexus',
+      announcement_message: 'This is a test email to verify EmailJS configuration is working properly. If you receive this, your EmailJS setup is correct!',
+      announcement_link: '',
+      announcement_type: 'test',
+      date: nowIST().split(',')[0], // Just the date part
+      time: nowIST().split(',')[1] || '', // Just the time part
+      title: 'Test Email from EduNexus',
+      message: 'This is a test email to verify EmailJS configuration is working properly. If you receive this, your EmailJS setup is correct!',
+      link: '',
+      portal_link: window.location.href, // Add portal login link
+      portal_url: window.location.origin + window.location.pathname, // Clean portal URL
+      from_name: 'EduNexus Admin'
+    };
+    
+    console.log('📋 Test email data:', emailData);
+    
+    const result = await emailjs.send(cfg.SERVICE_ID, cfg.ANNOUNCEMENT_TEMPLATE, emailData);
+    console.log('✅ Test email sent successfully! Result:', result);
+    toast('Test email sent successfully to ' + targetEmail, 'success');
+  } catch(e) {
+    console.error('❌ Test email failed:', e);
+    toast('Test email failed: ' + (e.message || e.text || 'Unknown error'), 'error');
+  }
+}
+
+function debugEmailJS(){
+  console.log('🔍 EmailJS Debug Information:');
+  const cfg = window.EMAILJS_CONFIG || {};
+  
+  console.log('📧 Configuration:', cfg);
+  console.log('🌐 EmailJS SDK loaded:', !!window.emailjs);
+  console.log('🔑 Public Key present:', !!cfg.PUBLIC_KEY);
+  console.log('🏢 Service ID present:', !!cfg.SERVICE_ID);
+  console.log('📄 Announcement Template present:', !!cfg.ANNOUNCEMENT_TEMPLATE);
+  console.log('🔐 Password Template present:', !!cfg.PASSWORD_TEMPLATE);
+  
+  console.log('\n👥 Students Debug:');
+  console.log('📊 Total students:', store.students.length);
+  console.log('📧 Students with email:', store.students.filter(s => s.email).length);
+  console.log('📋 All students:', store.students.map(s => ({
+    name: s.name,
+    email: s.email,
+    class: s.class,
+    hasValidEmail: s.email && s.email.includes('@')
+  })));
+  
+  console.log('\n⚙️ Settings:');
+  console.log('📧 Email notifications enabled:', store.ntf.email !== false);
+  console.log('🔔 Browser notifications enabled:', store.ntf.browser);
+  
+  // Test EmailJS initialization
+  if (window.emailjs) {
+    console.log('\n✅ EmailJS is loaded and ready');
+    try {
+      emailjs.init({ publicKey: cfg.PUBLIC_KEY });
+      console.log('✅ EmailJS initialization successful');
+    } catch (e) {
+      console.error('❌ EmailJS initialization failed:', e);
+    }
+  } else {
+    console.error('❌ EmailJS SDK not loaded');
+  }
+  
+  return {
+    emailjsLoaded: !!window.emailjs,
+    config: cfg,
+    studentsTotal: store.students.length,
+    studentsWithEmail: store.students.filter(s => s.email).length,
+    emailNotificationsEnabled: store.ntf.email !== false
+  };
+}
+  
+function togglePasswordVisibility(inputId) {
+  const input = document.getElementById(inputId);
+  const button = input.parentElement.querySelector('button');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    button.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    button.textContent = '👁️';
+  }
+}
+
+function notifyBrowser(title,body){
+  if(!store.ntf.browser) return;
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){ try{ new Notification(title,{body}); }catch(e){} }
+}
+
+/* ========== INIT ========== */
+// Initialize results storage
+if (!store.results) store.results = [];
+
+load();
+document.getElementById('forgotShow') && (document.getElementById('forgotShow').value=store.admin.p);
+restoreSession();
+// Refresh forgotShow value when opening modal (in case password changed)
+document.querySelectorAll('[onclick*="mForgot"]').forEach(b=>b.addEventListener('click',()=>{document.getElementById('forgotShow').value=store.admin.p;}));
+
+/* ========== RESULTS MANAGEMENT ========== */
+function refreshResults(){
+  renderResults();
+  renderResultStats();
+  fillResultStudentSelect();
+}
+
+function renderResultStats(){
+  const el = document.getElementById('resultStats');
+  if (!el) return;
+  
+  const totalResults = store.results.length;
+  const passedResults = store.results.filter(r => r.percentage >= 50).length;
+  const failedResults = store.results.filter(r => r.percentage < 50).length;
+  const avgPercentage = totalResults > 0 ? (store.results.reduce((sum, r) => sum + r.percentage, 0) / totalResults).toFixed(1) : 0;
+  
+  el.innerHTML = `
+    ${stat('Total Results', totalResults, '📝', 'purple')}
+    ${stat('Passed', passedResults, '✅', 'green')}
+    ${stat('Failed', failedResults, '❌', 'amber')}
+    ${stat('Avg %', avgPercentage + '%', '📊', 'cyan')}
+  `;
+}
+
+function fillResultStudentSelect(){
+  const sel = document.getElementById('nr-student');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Select Student</option>' + 
+    store.students.map(s => `<option value="${s.id}">${esc(s.name)} (${esc(s.class || 'No Class')})</option>`).join('');
+}
+
+function renderResults(){
+  const el = document.getElementById('resultBody');
+  if (!el) return;
+  
+  if (!store.results.length) {
+    el.innerHTML = '<tr><td colspan="10" class="empty" style="text-align:center;padding:40px;">No results added yet</td></tr>';
+    return;
+  }
+  
+  el.innerHTML = store.results.map(r => {
+    const student = store.students.find(s => s.id === r.studentId);
+    const studentName = student ? student.name : 'Unknown Student';
+    const percentage = r.percentage;
+    const grade = getGrade(percentage);
+    const status = percentage >= 50 ? 'Pass' : 'Fail';
+    const statusClass = percentage >= 50 ? 'b-green' : 'b-red';
+    
+    return `
+      <tr>
+        <td>${esc(studentName)}</td>
+        <td>${esc(r.subject)}</td>
+        <td><span class="chip">${esc(r.examType)}</span></td>
+        <td><strong>${r.marksObtained}</strong></td>
+        <td>${r.totalMarks}</td>
+        <td><strong>${percentage}%</strong></td>
+        <td><span class="badge b-blue">${grade}</span></td>
+        <td><span class="badge ${statusClass}">${status}</span></td>
+        <td class="tiny">${esc(r.examDate || r.date)}</td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick="editResult('${r.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteResult('${r.id}')">Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function getGrade(percentage) {
+  if (percentage >= 90) return 'A+';
+  if (percentage >= 80) return 'A';
+  if (percentage >= 70) return 'B+';
+  if (percentage >= 60) return 'B';
+  if (percentage >= 50) return 'C';
+  return 'F';
+}
+
+function addResult(){
+  const studentId = document.getElementById('nr-student').value;
+  const subject = v('nr-subject');
+  const examType = document.getElementById('nr-examType').value;
+  const examDate = document.getElementById('nr-examDate').value;
+  const marksObtained = parseInt(document.getElementById('nr-marksObtained').value);
+  const totalMarks = parseInt(document.getElementById('nr-totalMarks').value);
+  const comments = v('nr-comments');
+  
+  if (!studentId || !subject || !marksObtained || !totalMarks) {
+    return toast('Please fill all required fields', 'error');
+  }
+  
+  if (marksObtained > totalMarks) {
+    return toast('Marks obtained cannot be greater than total marks', 'error');
+  }
+  
+  const percentage = ((marksObtained / totalMarks) * 100).toFixed(1);
+  const grade = getGrade(parseFloat(percentage));
+  
+  const result = {
+    id: uid(),
+    studentId,
+    subject,
+    examType,
+    examDate: examDate || todayIST(),
+    marksObtained,
+    totalMarks,
+    percentage: parseFloat(percentage),
+    grade,
+    comments,
+    date: nowIST(),
+    addedBy: 'admin'
+  };
+  
+  store.results.unshift(result);
+  save();
+  closeModal('mAddResult');
+  
+  // Clear form
+  ['nr-student', 'nr-subject', 'nr-examType', 'nr-examDate', 'nr-marksObtained', 'nr-totalMarks', 'nr-comments'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  
+  refreshResults();
+  refreshAdminDash();
+  toast('Result added successfully', 'success');
+}
+
+function editResult(id){
+  const r = store.results.find(x => x.id === id);
+  if (!r) return;
+  
+  const student = store.students.find(s => s.id === r.studentId);
+  
+  document.getElementById('er-id').value = r.id;
+  document.getElementById('er-studentName').value = student ? student.name : 'Unknown Student';
+  document.getElementById('er-subject').value = r.subject;
+  document.getElementById('er-examType').value = r.examType;
+  document.getElementById('er-examDate').value = r.examDate;
+  document.getElementById('er-marksObtained').value = r.marksObtained;
+  document.getElementById('er-totalMarks').value = r.totalMarks;
+  document.getElementById('er-comments').value = r.comments || '';
+  
+  openModal('mEditResult');
+}
+
+function saveEditResult(){
+  const id = document.getElementById('er-id').value;
+  const r = store.results.find(x => x.id === id);
+  if (!r) return;
+  
+  const subject = v('er-subject');
+  const examType = document.getElementById('er-examType').value;
+  const examDate = document.getElementById('er-examDate').value;
+  const marksObtained = parseInt(document.getElementById('er-marksObtained').value);
+  const totalMarks = parseInt(document.getElementById('er-totalMarks').value);
+  const comments = v('er-comments');
+  
+  if (!subject || !marksObtained || !totalMarks) {
+    return toast('Please fill all required fields', 'error');
+  }
+  
+  if (marksObtained > totalMarks) {
+    return toast('Marks obtained cannot be greater than total marks', 'error');
+  }
+  
+  const percentage = ((marksObtained / totalMarks) * 100).toFixed(1);
+  const grade = getGrade(parseFloat(percentage));
+  
+  r.subject = subject;
+  r.examType = examType;
+  r.examDate = examDate;
+  r.marksObtained = marksObtained;
+  r.totalMarks = totalMarks;
+  r.percentage = parseFloat(percentage);
+  r.grade = grade;
+  r.comments = comments;
+  r.lastModified = nowIST();
+  
+  save();
+  closeModal('mEditResult');
+  refreshResults();
+  toast('Result updated successfully', 'success');
+}
+
+function deleteResult(id){
+  const r = store.results.find(x => x.id === id);
+  if (!r) return;
+  
+  const student = store.students.find(s => s.id === r.studentId);
+  const studentName = student ? student.name : 'Unknown Student';
+  
+  confirmAction('Delete Result', `Delete ${r.subject} result for ${studentName}?`, () => {
+    store.results = store.results.filter(x => x.id !== id);
+    save();
+    refreshResults();
+    toast('Result deleted', 'success');
+  });
+}
+
+/* ========== STUDENT RESULTS ========== */
+function refreshStudentResults(stu){
+  renderStudentResults(stu);
+  renderStudentResultStats(stu);
+}
+
+function renderStudentResultStats(stu){
+  const el = document.getElementById('sResultStats');
+  if (!el) return;
+  
+  const myResults = store.results.filter(r => r.studentId === stu.id);
+  const totalResults = myResults.length;
+  const passedResults = myResults.filter(r => r.percentage >= 50).length;
+  const failedResults = myResults.filter(r => r.percentage < 50).length;
+  const avgPercentage = totalResults > 0 ? (myResults.reduce((sum, r) => sum + r.percentage, 0) / totalResults).toFixed(1) : 0;
+  
+  el.innerHTML = `
+    ${stat('Total Exams', totalResults, '📝', 'purple')}
+    ${stat('Passed', passedResults, '✅', 'green')}
+    ${stat('Failed', failedResults, '❌', 'amber')}
+    ${stat('Avg %', avgPercentage + '%', '📊', 'cyan')}
+  `;
+}
+
+function renderStudentResults(stu){
+  const el = document.getElementById('sResultList');
+  if (!el) return;
+  
+  const myResults = store.results.filter(r => r.studentId === stu.id);
+  
+  if (!myResults.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div>No results available yet.</div>';
+    return;
+  }
+  
+  // Group results by subject
+  const groupedResults = {};
+  myResults.forEach(r => {
+    if (!groupedResults[r.subject]) groupedResults[r.subject] = [];
+    groupedResults[r.subject].push(r);
+  });
+  
+  el.innerHTML = Object.keys(groupedResults).map(subject => {
+    const subjectResults = groupedResults[subject].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    return `
+      <div class="panel" style="margin-bottom: 16px;">
+        <div class="panel-head">
+          <div class="panel-title">${esc(subject)}</div>
+          <div class="badge b-blue">${subjectResults.length} exam${subjectResults.length > 1 ? 's' : ''}</div>
+        </div>
+        <div class="table-wrap">
+          <table style="min-width: 100%;">
+            <thead>
+              <tr><th>Exam Type</th><th>Date</th><th>Marks</th><th>Total</th><th>%</th><th>Grade</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              ${subjectResults.map(r => {
+                const statusClass = r.percentage >= 50 ? 'b-green' : 'b-red';
+                const status = r.percentage >= 50 ? 'Pass' : 'Fail';
+                return `
+                  <tr>
+                    <td><span class="chip">${esc(r.examType)}</span></td>
+                    <td class="tiny">${esc(r.examDate || r.date.split(',')[0])}</td>
+                    <td><strong>${r.marksObtained}</strong></td>
+                    <td>${r.totalMarks}</td>
+                    <td><strong>${r.percentage}%</strong></td>
+                    <td><span class="badge b-blue">${r.grade}</span></td>
+                    <td><span class="badge ${statusClass}">${status}</span></td>
+                  </tr>
+                  ${r.comments ? `<tr><td colspan="7" class="tiny soft" style="padding-left: 20px;">💬 ${esc(r.comments)}</td></tr>` : ''}
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ========== INIT ========== */
+document.addEventListener('DOMContentLoaded', function() {
+  load();
+  // Ensure results array exists after load (backward-compat)
+  if (!Array.isArray(store.results)) store.results = [];
+  restoreSession();
+});
+</script>
+</body>
+</html>
